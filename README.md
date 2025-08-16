@@ -1,12 +1,12 @@
-# 🔑 agent-keys
+# 🔑 Kage Keys
 
 Scoped, expiring keys for AI agents in 5 minutes.
 
 ## Why?
 By default, AI agents get **full API keys** with unlimited access. That’s a disaster waiting to happen.
-`agent-keys` gives you **scoped, temporary tokens** for each action, so your agents stay safe and auditable.
+`@kagehq/keys` gives you **scoped, temporary tokens** for each action, so your agents stay safe and auditable.
 
-Stop giving your AI agents full API keys. 🔑 `agent-keys` lets you issue scoped, expiring tokens for agent actions in seconds.
+Stop giving your AI agents full API keys. 🔑 **Kage Keys** lets you issue scoped, expiring tokens for agent actions in seconds.
 
 ✅ Scoped by service/action (e.g. github:repos.read)
 ✅ Auto-expires after 10s (configurable)
@@ -19,7 +19,7 @@ Stop giving your AI agents full API keys. 🔑 `agent-keys` lets you issue scope
 ## Installation
 
 ```bash
-npm install agent-keys
+npm install @kagehq/keys
 ```
 
 ## Usage
@@ -27,8 +27,8 @@ npm install agent-keys
 ### Basic Usage
 
 ```javascript
-//const { withAgentKey, getLogs } = require("agent-keys");
-import { withAgentKey, getLogs } from "agent-keys";
+//const { withAgentKey, getLogs } = require("@kagehq/keys");
+import { withAgentKey, getLogs } from "@kagehq/keys";
 
 async function example() {
   await withAgentKey("github:repos.read", async (token) => {
@@ -91,7 +91,7 @@ Clears all logs from the log file.
 
 ## Log Format
 
-Logs are stored in `agent-keys.log` with the following structure:
+Logs are stored in `kage-keys.log` with the following structure:
 
 ```json
 [

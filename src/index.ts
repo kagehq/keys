@@ -13,7 +13,7 @@ interface AgentKeyOptions {
   expiresIn?: number; // seconds
 }
 
-const LOG_FILE = 'agent-keys.log';
+const LOG_FILE = 'kage-keys.log';
 
 /**
  * Generates a fake scoped token (UUID) and executes the provided function

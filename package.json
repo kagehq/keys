@@ -1,7 +1,7 @@
 {
-  "name": "agent-keys",
+  "name": "@kagehq/keys",
   "version": "0.1.0",
-  "description": "Scoped, expiring keys for AI agents — in 5 minutes.",
+  "description": "Scoped, expiring keys for AI agents in 5 minutes.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -36,10 +36,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kagehq/agent-keys.git"
+    "url": "https://github.com/kagehq/keys.git"
   },
   "bugs": {
-    "url": "https://github.com/kagehq/agent-keys/issues"
+    "url": "https://github.com/kagehq/keys/issues"
   },
-  "homepage": "https://github.com/kagehq/agent-keys#readme"
+  "homepage": "https://github.com/kagehq/keys#readme"
 }

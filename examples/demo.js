@@ -1,7 +1,7 @@
 const { withAgentKey, getLogs } = require("../dist/index.js");
 
 async function test() {
-  console.log("🚀 Starting agent-keys demo...\n");
+  console.log("🚀 Starting Kage Keys demo...\n");
   
   // Test successful execution
   await withAgentKey("github:repos.read", async (token) => {
