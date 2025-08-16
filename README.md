@@ -8,10 +8,10 @@ By default, AI agents get **full API keys** with unlimited access. That’s a di
 
 Stop giving your AI agents full API keys. 🔑 **Kage Keys** lets you issue scoped, expiring tokens for agent actions in seconds.
 
-✅ Scoped by service/action (e.g. github:repos.read)
-✅ Auto-expires after 10s (configurable)
-✅ Logs every action for debugging & compliance
-✅ Drop-in wrapper around any async function
+- ✅ Scoped by service/action (e.g. github:repos.read)
+- ✅ Auto-expires after 10s (configurable)
+- ✅ Logs every action for debugging & compliance
+- ✅ Drop-in wrapper around any async function
 
 🔥 Perfect for debugging, demos, and making your AI agents safer today.
 
@@ -114,12 +114,13 @@ See the `examples/demo.js` file for a complete demonstration of all features.
 node examples/demo.js
 ```
 
-Roadmap
-	•	✅ Scoped, expiring tokens
-	•	✅ Local logging
-	•	⬜ Real API proxy integration
-	•	⬜ Live revoke + approvals
-	•	⬜ Enterprise dashboard
+## Roadmap
+
+- ✅ Scoped, expiring tokens
+- ✅ Local logging
+- ⬜ Real API proxy integration
+- ⬜ Live revoke + approvals
+- ⬜ Enterprise dashboard
 
 
 ## License
