@@ -1,12 +1,12 @@
-# agent-keys
+# 🔑 agent-keys
 
-Scoped, expiring keys for AI agents — in 5 minutes.
+Scoped, expiring keys for AI agents in 5 minutes.
 
 ## Why?
 By default, AI agents get **full API keys** with unlimited access. That’s a disaster waiting to happen.
 `agent-keys` gives you **scoped, temporary tokens** for each action, so your agents stay safe and auditable.
 
-Stop giving your AI agents full API keys. 🔑 agent-keys lets you issue scoped, expiring tokens for agent actions in seconds.
+Stop giving your AI agents full API keys. 🔑 `agent-keys` lets you issue scoped, expiring tokens for agent actions in seconds.
 
 ✅ Scoped by service/action (e.g. github:repos.read)
 ✅ Auto-expires after 10s (configurable)
