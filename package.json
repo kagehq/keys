@@ -1,0 +1,45 @@
+{
+  "name": "agent-keys",
+  "version": "0.1.0",
+  "description": "Scoped, expiring keys for AI agents — in 5 minutes.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "node examples/demo.js"
+  },
+  "keywords": [
+    "agent",
+    "keys",
+    "tokens",
+    "scoped",
+    "logging",
+    "uuid"
+  ],
+  "author": "Treadie, Inc",
+  "license": "FSL-1.1-MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kagehq/agent-keys.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kagehq/agent-keys/issues"
+  },
+  "homepage": "https://github.com/kagehq/agent-keys#readme"
+}
