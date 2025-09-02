@@ -1,15 +1,21 @@
 {
   "name": "@kagehq/keys",
-  "version": "0.1.1",
-  "description": "Scoped, expiring keys for AI agents in 5 minutes.",
+  "version": "0.3.0",
+  "description": "Scoped, expiring keys for AI agents with HTTP broker and audit logging.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "kage-keys": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
-    "test": "node examples/demo.js"
+    "test": "node examples/demo.js",
+    "start": "node dist/cli.js start",
+    "cli": "node dist/cli.js",
+    "version": "0.3.0"
   },
   "keywords": [
     "agent",
@@ -24,10 +30,13 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/uuid": "^10.0.0",
+    "@types/sqlite3": "^3.1.8",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "sqlite3": "^5.1.6",
+    "commander": "^11.1.0"
   },
   "files": [
     "dist",
