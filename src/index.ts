@@ -1,15 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import * as fs from 'fs';
 
 // Core SDK interfaces
-interface LogEntry {
-  scope: string;
-  timestamp: string;
-  status: 'success' | 'error';
-  token: string;
-  expiresAt: string;
-}
-
 interface AgentKeyOptions {
   expiresIn?: number; // seconds
   broker?: {
@@ -30,7 +21,7 @@ import { AgentKeyBroker } from './broker';
 import { HMACSigner } from './signer';
 import { SQLiteAuditLogger } from './audit';
 
-const LOG_FILE = 'kage-keys.log';
+
 
 /**
  * Generates a scoped token and executes the provided function
@@ -64,37 +55,19 @@ export async function withAgentKey<T>(
  * Standalone mode: Original SDK behavior with local token generation
  */
 async function withAgentKeyStandalone<T>(
-  scope: string,
+  _scope: string,
   fn: (token: string) => Promise<T> | T,
-  expiresIn: number
+  _expiresIn: number
 ): Promise<T> {
   // Generate a scoped token (UUID for demo, JWT for production)
   const token = uuidv4();
-  
-  // Calculate expiration time
-  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
-  
-  const logEntry: LogEntry = {
-    scope,
-    timestamp: new Date().toISOString(),
-    status: 'success',
-    token,
-    expiresAt
-  };
   
   try {
     // Execute the function with the token
     const result = await fn(token);
     
-    // Log successful usage
-    await logUsage(logEntry);
-    
     return result;
   } catch (error) {
-    // Log failed usage
-    logEntry.status = 'error';
-    await logUsage(logEntry);
-    
     throw error;
   }
 }
@@ -126,32 +99,17 @@ async function withAgentKeyViaBroker<T>(
     const token = await signer.sign(tokenPayload);
     
     // Log broker integration
-    console.log(`🔗 Broker mode enabled: ${brokerUrl}`);
-    console.log(`🔑 Generated JWT token for scope: ${scope}`);
+    // Log broker usage (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔗 Broker mode enabled: ${brokerUrl}`);
+      console.log(`🔑 Generated token for scope: ${scope}`);
+    }
     
     // Execute the function with the broker token
     const result = await fn(token);
     
-    // Log successful usage
-    await logUsage({
-      scope,
-      timestamp: new Date().toISOString(),
-      status: 'success',
-      token: `broker:${token.substring(0, 16)}...`,
-      expiresAt: new Date((now + expiresIn) * 1000).toISOString()
-    });
-    
     return result;
   } catch (error) {
-    // Log failed usage
-    await logUsage({
-      scope,
-      timestamp: new Date().toISOString(),
-      status: 'error',
-      token: 'broker:error',
-      expiresAt: new Date().toISOString()
-    });
-    
     throw error;
   }
 }
@@ -194,74 +152,19 @@ export async function withBrokeredAPI<T>(
   
   const token = await signer.sign(tokenPayload);
   
-  // Log broker usage
-  console.log(`🔗 Using broker at: ${brokerUrl}`);
-  console.log(`🔑 Generated token for scope: ${scope}`);
+  // Log broker usage (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🔗 Using broker at: ${brokerUrl}`);
+    console.log(`🔑 Generated token for scope: ${scope}`);
+  }
   
   // Make the API call through the broker
   return await apiCall(token);
 }
 
-/**
- * Logs usage information to the local JSON file
- * @param entry - The log entry to write
- */
-async function logUsage(entry: LogEntry): Promise<void> {
-  try {
-    let logs: LogEntry[] = [];
-    
-    // Read existing logs if file exists
-    if (fs.existsSync(LOG_FILE)) {
-      const fileContent = fs.readFileSync(LOG_FILE, 'utf-8');
-      if (fileContent.trim()) {
-        logs = JSON.parse(fileContent);
-      }
-    }
-    
-    // Add new entry
-    logs.push(entry);
-    
-    // Write back to file
-    fs.writeFileSync(LOG_FILE, JSON.stringify(logs, null, 2));
-  } catch (error) {
-    console.error('Failed to log usage:', error);
-  }
-}
 
-/**
- * Reads and returns all logs from the log file
- * @returns Promise that resolves to an array of log entries
- */
-export async function getLogs(): Promise<LogEntry[]> {
-  try {
-    if (!fs.existsSync(LOG_FILE)) {
-      return [];
-    }
-    
-    const fileContent = fs.readFileSync(LOG_FILE, 'utf-8');
-    if (!fileContent.trim()) {
-      return [];
-    }
-    
-    return JSON.parse(fileContent);
-  } catch (error) {
-    console.error('Failed to read logs:', error);
-    return [];
-  }
-}
 
-/**
- * Clears all logs from the log file
- */
-export async function clearLogs(): Promise<void> {
-  try {
-    if (!fs.existsSync(LOG_FILE)) {
-      fs.unlinkSync(LOG_FILE);
-    }
-  } catch (error) {
-    console.error('Failed to clear logs:', error);
-  }
-}
+
 
 // Broker convenience functions (for advanced users)
 export async function createBroker(port: number = 3000, auditDbPath?: string): Promise<AgentKeyBroker> {

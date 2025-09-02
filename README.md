@@ -326,6 +326,31 @@ See the `examples/` directory:
 - `unified-sdk-demo.js` - Both modes in action
 - `broker-demo.js` - Full broker system
 
+### Quick Reference
+
+```javascript
+// Basic usage
+await withAgentKey("service:resource.action", async (token) => {
+  // Your API call here
+  return await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+});
+
+// With custom duration
+await withAgentKey("service:resource.action", async (token) => {
+  // Token expires in 1 hour
+  return await apiCall(token);
+}, { expiresIn: 3600 });
+
+// With broker integration
+await withAgentKey("service:resource.action", async (token) => {
+  // Enhanced security via broker
+  return await apiCall(token);
+}, { 
+  expiresIn: 3600,
+  broker: { url: 'http://localhost:3000', useBroker: true }
+});
+```
+
 ## Use Cases
 
 ### SDK Mode (Immediate Value)
@@ -346,6 +371,139 @@ See the `examples/` directory:
 2. **Basic**: Use `withAgentKey` for simple scoped keys
 3. **Enhanced**: Add broker configuration when ready
 4. **Advanced**: Use CLI tools for production management
+
+## Implementation Guide
+
+### Where to Implement Kage Keys
+
+Kage Keys can be implemented in **your existing backend** or **AI agent code** without major architectural changes.
+
+#### Option 1: Backend API Gateway (Recommended)
+
+```javascript
+// Your existing Express/FastAPI/Flask backend
+import { withAgentKey } from '@kagehq/keys';
+
+app.get('/api/github/repos', async (req, res) => {
+  // Generate scoped token for this specific request
+  const repos = await withAgentKey("github:repos.read", async (token) => {
+    // Use scoped token instead of master API key
+    const response = await fetch('https://api.github.com/user/repos', {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    return await response.json();
+  });
+  
+  res.json(repos);
+});
+
+app.post('/api/openai/chat', async (req, res) => {
+  const { message } = req.body;
+  
+  const response = await withAgentKey("openai:chat.create", async (token) => {
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: message }]
+      })
+    });
+    
+    return await openaiResponse.json();
+  });
+  
+  res.json(response);
+});
+```
+
+#### Option 2: AI Agent with Scoped Access
+
+```javascript
+// Your AI agent that needs to call external APIs
+class AIAgent {
+  async analyzeGitHubRepo(owner, repo) {
+    // Get scoped access to GitHub
+    const repoData = await withAgentKey("github:repos.read", async (token) => {
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      return await response.json();
+    });
+    
+    // Now analyze the repo data
+    return this.analyzeCode(repoData);
+  }
+  
+  async postSlackMessage(channel, message) {
+    // Get scoped access to Slack
+    await withAgentKey("slack:chat.post", async (token) => {
+      await fetch('https://slack.com/api/chat.postMessage', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ channel, text: message })
+      });
+    });
+  }
+}
+```
+
+### Migration from Traditional API Keys
+
+#### Before (Traditional Approach)
+```javascript
+// Your existing code - using master API keys
+const GITHUB_TOKEN = process.env.GITHUB_MASTER_TOKEN;
+const OPENAI_KEY = process.env.OPENAI_MASTER_KEY;
+
+app.get('/github/repos', async (req, res) => {
+  // Using master token everywhere
+  const response = await fetch('https://api.github.com/user/repos', {
+    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+  });
+  // ... rest of code
+});
+```
+
+#### After (With Kage Keys)
+```javascript
+// Your existing code - now with scoped tokens
+import { withAgentKey } from '@kagehq/keys';
+
+app.get('/github/repos', async (req, res) => {
+  // Generate scoped token for this specific request
+  const repos = await withAgentKey("github:repos.read", async (token) => {
+    const response = await fetch('https://api.github.com/user/repos', {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    return await response.json();
+  });
+  
+  res.json(repos);
+});
+```
+
+### Quick Migration Steps
+
+1. **Install Kage Keys**: `npm install @kagehq/keys`
+2. **Import the function**: `import { withAgentKey } from '@kagehq/keys'`
+3. **Replace one API call** to test the pattern
+4. **Gradually migrate** other API calls
+5. **Remove master API keys** from your environment variables
+
+### Benefits of This Approach
+
+- ✅ **No Backend Changes Required**: Works with your existing API structure
+- ✅ **Scoped Access**: Each request gets a limited-scope token
+- ✅ **Audit Trail**: See exactly what each request accessed
+- ✅ **Security**: No more master API keys in your code
+- ✅ **Compliance**: Better for enterprise security requirements
 
 
 ## License

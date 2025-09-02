@@ -35,7 +35,9 @@ export class AgentKeyBroker {
     });
 
     server.listen(port, () => {
+      if (process.env.NODE_ENV === 'development') {
       console.log(`Agent Key Broker running on port ${port}`);
+    }
     });
   }
 

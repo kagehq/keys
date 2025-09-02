@@ -1,8 +1,7 @@
 const { 
   withAgentKey, 
   withBrokeredAPI, 
-  createBroker,
-  getLogs 
+  createBroker
 } = require('../dist/index');
 
 async function unifiedSDKDemo() {
@@ -94,17 +93,8 @@ async function unifiedSDKDemo() {
 
   // 4. Show logs
   console.log('📊 4. Viewing Logs');
-  try {
-    const logs = await getLogs();
-    console.log(`   📝 Found ${logs.length} log entries`);
-    
-    if (logs.length > 0) {
-      const latest = logs[logs.length - 1];
-      console.log(`   🕒 Latest: ${latest.scope} - ${latest.status} at ${latest.timestamp}`);
-    }
-  } catch (error) {
-    console.log(`   ❌ Error reading logs: ${error.message}`);
-  }
+  console.log('   📝 Logs are now stored in SQLite database via broker');
+  console.log('   🔍 Use: npx kage-keys logs to view audit logs');
 
   console.log('\n🎯 Key Benefits of Unified SDK:');
   console.log('   ✅ Simple interface that works both ways');

@@ -1,4 +1,4 @@
-const { withAgentKey, getLogs } = require("../dist/index.js");
+const { withAgentKey } = require("../dist/index.js");
 
 async function test() {
   console.log("🚀 Starting Kage Keys demo...\n");
@@ -30,10 +30,7 @@ async function test() {
     console.log(`❌ Database operation failed: ${error.message}\n`);
   }
   
-  // Display logs
-  console.log("📊 Usage Logs:");
-  const logs = await getLogs();
-  console.log(JSON.stringify(logs, null, 2));
+  console.log("✅ Demo completed successfully!");
 }
 
 test().catch(console.error);
