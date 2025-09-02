@@ -79,6 +79,44 @@ await withAgentKey("openai:chat.create", async (token) => {
 });
 ```
 
+### Token Duration & Expiry
+
+```javascript
+// Short-lived token (10 seconds - default)
+await withAgentKey("github:repos.read", async (token) => {
+  // Quick API call
+  return await github.getRepos(token);
+});
+
+// Medium-lived token (5 minutes)
+await withAgentKey("slack:chat.post", async (token) => {
+  // Post message with 5-minute window
+  return await slack.postMessage(token, "Hello team!");
+}, { expiresIn: 300 });
+
+// Long-lived token (1 hour)
+await withAgentKey("openai:chat.create", async (token) => {
+  // Extended AI conversation
+  return await openai.chat(token, "Let's have a long conversation...");
+}, { expiresIn: 3600 });
+
+// Very long-lived token (24 hours)
+await withAgentKey("aws:s3.read", async (token) => {
+  // Batch processing job
+  return await aws.listS3Objects(token);
+}, { expiresIn: 86400 });
+```
+
+### Duration Examples
+
+| Use Case | Duration | `expiresIn` Value |
+|----------|----------|-------------------|
+| **Quick API calls** | 10 seconds | `10` (default) |
+| **User sessions** | 5 minutes | `300` |
+| **AI conversations** | 1 hour | `3600` |
+| **Batch jobs** | 24 hours | `86400` |
+| **Long-running tasks** | 7 days | `604800` |
+
 ## Core Concepts
 
 ### Scope Format
@@ -132,6 +170,18 @@ withBrokeredAPI("scope", apiCall, {
   expiresIn: 3600,
   provider: 'openai'
 });
+
+// Broker mode with custom duration
+await withAgentKey("openai:chat.create", async (token) => {
+  // 30-minute AI session
+  return await openai.chat(token, "Start conversation...");
+}, { 
+  expiresIn: 1800,  // 30 minutes
+  broker: { 
+    url: 'http://localhost:3000', 
+    useBroker: true 
+  } 
+});
 ```
 
 ## Advanced Features
@@ -141,6 +191,9 @@ withBrokeredAPI("scope", apiCall, {
 ```bash
 # Start broker
 npx kage-keys start
+
+# View available scopes and service catalogs
+npx kage-keys scopes
 
 # Create tokens
 npx kage-keys token create --scope "openai:chat.create" --agent "my-agent"
@@ -160,6 +213,17 @@ Pre-configured integrations for:
 - **Slack**: Messages, channels, users
 - **Notion**: Pages, databases
 - **AWS**: STS, S3, Lambda
+
+**View all available scopes and bundles:**
+```bash
+npx kage-keys scopes
+```
+
+This command shows:
+- All available service scopes with their HTTP methods and endpoints
+- Predefined scope bundles for common use cases
+- Rate limit configurations
+- API endpoint mappings
 
 ## 🔒 Security Features
 
@@ -183,12 +247,59 @@ Pre-configured integrations for:
 - **Performance metrics**: Request duration, provider latency
 - **Search & filtering**: By time, agent, scope, status
 
+### Token Lifecycle Monitoring
+
+```javascript
+// Check token expiry in logs
+const logs = await getLogs();
+const activeTokens = logs.filter(log => {
+  const expiry = new Date(log.expiresAt);
+  const now = new Date();
+  return expiry > now && log.status === 'success';
+});
+
+console.log(`Active tokens: ${activeTokens.length}`);
+activeTokens.forEach(token => {
+  const timeLeft = Math.ceil((new Date(token.expiresAt) - new Date()) / 1000);
+  console.log(`${token.scope}: expires in ${timeLeft}s`);
+});
+```
+
+### Duration Best Practices
+
+- **Quick operations**: Use default (10s) or shorter
+- **User interactions**: 5-15 minutes for session tokens
+- **Background jobs**: 1-24 hours depending on complexity
+- **Long-running tasks**: Consider token refresh strategies
+
 ## Migration Path
 
 ### Start Simple
 ```javascript
 // Phase 1: Basic SDK
 await withAgentKey("github:repos.read", fn);
+```
+
+### Handle Token Expiry
+
+```javascript
+try {
+  await withAgentKey("github:repos.read", async (token) => {
+    // Token expires in 10 seconds by default
+    const repos = await github.getRepos(token);
+    return repos;
+  }, { expiresIn: 10 });
+} catch (error) {
+  if (error.message.includes('expired')) {
+    // Token expired - handle gracefully
+    console.log('Token expired, retrying...');
+    // Retry with new token
+    return await withAgentKey("github:repos.read", async (token) => {
+      return await github.getRepos(token);
+    });
+  }
+  throw error;
+}
 ```
 
 ### Enhance When Ready
