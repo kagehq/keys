@@ -258,6 +258,17 @@ This command shows:
 - **Clock skew tolerance**
 - **Token revocation lists**
 
+### Security Hardening
+
+- **mTLS Support**: Mutual TLS authentication between client and broker
+- **CSRF Protection**: Cross-site request forgery protection for web UI
+- **Strict CORS**: Configurable cross-origin resource sharing policies
+- **Security Headers**: Comprehensive security headers (CSP, HSTS, XSS protection)
+- **Session Management**: Secure session handling with configurable policies
+- **Password Policies**: Enforceable password strength requirements
+- **Sensitive Data Masking**: Automatic redaction of sensitive information in logs
+- **Certificate Management**: SSL/TLS certificate loading and validation
+
 ## 📊 Monitoring & Compliance
 
 ### Token Lifecycle Monitoring
@@ -280,6 +291,43 @@ This command shows:
 
 ## 🚀 Implementation Guide
 
+### Security Configuration
+
+Configure production-grade security for your deployment:
+
+```javascript
+import { SecurityManager } from '@kagehq/keys';
+
+const securityManager = new SecurityManager({
+  tls: {
+    enabled: true,
+    minVersion: 'TLSv1.2',
+    maxVersion: 'TLSv1.3'
+  },
+  mtls: {
+    enabled: true,
+    verifyClient: true
+  },
+  cors: {
+    origins: ['https://yourdomain.com'],
+    credentials: true
+  },
+  csrf: {
+    enabled: true,
+    tokenLength: 32
+  },
+  session: {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict'
+  },
+  rateLimit: {
+    windowMs: 15 * 60 * 1000,
+    maxRequests: 100
+  }
+});
+```
+
 ### Quick Demo
 
 Experience the full enterprise features in minutes:
@@ -287,6 +335,9 @@ Experience the full enterprise features in minutes:
 ```bash
 # Run the complete enterprise demo
 node examples/enterprise-demo.js
+
+# Run the security hardening demo
+node examples/security-demo.js
 
 # This will start:
 # - Multi-tenant organization structure
@@ -468,6 +519,7 @@ See the `examples/` directory:
 - `unified-sdk-demo.js` - Both modes in action
 - `broker-demo.js` - Full broker system
 - `enterprise-demo.js` - Complete enterprise features demo
+- `security-demo.js` - Security hardening features demo
 
 ### Quick Reference
 

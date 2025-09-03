@@ -22,8 +22,9 @@ program
     try {
       console.log(`🚀 Starting Agent Key Broker on port ${options.port}...`);
       
-      const signer = options.secret ? new HMACSigner(options.secret) : undefined;
-      const broker = new AgentKeyBroker(signer, options.db);
+      const signer = options.secret ? new HMACSigner(options.secret) : new HMACSigner();
+      const auditLogger = new SQLiteAuditLogger(options.db);
+      const broker = new AgentKeyBroker(signer, auditLogger);
       
       // Initialize scope catalogs
       ScopeCatalog.initialize();

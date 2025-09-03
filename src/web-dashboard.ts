@@ -5,6 +5,7 @@ import { Dashboard } from './dashboard';
 import { ApprovalManager } from './approval';
 import { TenancyManager } from './tenancy';
 import { SQLiteAuditLogger } from './audit';
+import * as crypto from 'crypto';
 
 export interface WebDashboardOptions {
   port?: number;
@@ -15,6 +16,15 @@ export interface WebDashboardOptions {
   approvalManager: ApprovalManager;
   tenancyManager: TenancyManager;
   auditLogger: SQLiteAuditLogger;
+  security?: {
+    enableCSRF?: boolean;
+    csrfSecret?: string;
+    sessionSecret?: string;
+    maxAge?: number;
+    secureCookies?: boolean;
+    httpOnly?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+  };
 }
 
 export class WebDashboard {
@@ -24,6 +34,8 @@ export class WebDashboard {
   private approvalManager: ApprovalManager;
   private tenancyManager: TenancyManager;
   private auditLogger: SQLiteAuditLogger;
+  private csrfTokens: Map<string, { token: string; expires: number }> = new Map();
+  private sessions: Map<string, { userId: string; expires: number }> = new Map();
 
   constructor(options: WebDashboardOptions) {
     this.options = options;
@@ -31,6 +43,18 @@ export class WebDashboard {
     this.approvalManager = options.approvalManager;
     this.tenancyManager = options.tenancyManager;
     this.auditLogger = options.auditLogger;
+
+    // Set default security options
+    this.options.security = {
+      enableCSRF: true,
+      csrfSecret: options.security?.csrfSecret || crypto.randomBytes(32).toString('hex'),
+      sessionSecret: options.security?.sessionSecret || crypto.randomBytes(32).toString('hex'),
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secureCookies: options.enableHTTPS || false,
+      httpOnly: true,
+      sameSite: 'strict',
+      ...options.security
+    };
 
     if (options.enableHTTPS && options.sslCert && options.sslKey) {
       // HTTPS server
@@ -55,6 +79,7 @@ export class WebDashboard {
       this.server.listen(port, () => {
         const protocol = this.options.enableHTTPS ? 'https' : 'http';
         console.log(`🌐 Web Dashboard running on ${protocol}://localhost:${port}`);
+        console.log(`🔒 Security: CSRF ${this.options.security?.enableCSRF ? 'enabled' : 'disabled'}, HTTPS ${this.options.enableHTTPS ? 'enabled' : 'disabled'}`);
         resolve();
       });
 
@@ -96,10 +121,11 @@ export class WebDashboard {
     const path = url.pathname;
     const method = req.method || 'GET';
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    // Set strict security headers
+    this.setSecurityHeaders(res);
+
+    // Set CORS headers with strict policy
+    this.setCORSHeaders(req, res);
 
     if (method === 'OPTIONS') {
       res.writeHead(200);
@@ -108,6 +134,16 @@ export class WebDashboard {
     }
 
     try {
+      // Validate session for protected routes
+      if (this.isProtectedRoute(path) && !this.validateSession(req, res)) {
+        return;
+      }
+
+      // Validate CSRF token for state-changing operations
+      if (this.isStateChangingOperation(method, path) && !this.validateCSRFToken(req, res)) {
+        return;
+      }
+
       // API Routes
       if (path.startsWith('/api/')) {
         await this.handleAPIRoute(path, method, req, res);
@@ -130,6 +166,16 @@ export class WebDashboard {
         return;
       }
 
+      if (path === '/login') {
+        await this.handleLogin(req, res);
+        return;
+      }
+
+      if (path === '/logout') {
+        await this.handleLogout(req, res);
+        return;
+      }
+
       // WebSocket upgrade for real-time updates
       if (path === '/ws' && req.headers.upgrade === 'websocket') {
         // TODO: Implement WebSocket upgrade
@@ -147,6 +193,230 @@ export class WebDashboard {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Internal Server Error' }));
     }
+  }
+
+  /**
+   * Set strict security headers
+   */
+  private setSecurityHeaders(res: http.ServerResponse): void {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none';");
+    res.setHeader('Strict-Transport-Security', this.options.enableHTTPS ? 'max-age=31536000; includeSubDomains; preload' : '');
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  }
+
+  /**
+   * Set strict CORS headers
+   */
+  private setCORSHeaders(req: http.IncomingMessage, res: http.ServerResponse): void {
+    const origin = req.headers.origin;
+    const allowedOrigins = ['http://localhost:8080', 'http://localhost:3000'];
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token, X-Request-ID');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+
+  /**
+   * Check if route requires authentication
+   */
+  private isProtectedRoute(path: string): boolean {
+    const protectedRoutes = ['/api/', '/dashboard'];
+    return protectedRoutes.some(route => path.startsWith(route));
+  }
+
+  /**
+   * Check if operation changes state (requires CSRF protection)
+   */
+  private isStateChangingOperation(method: string, path: string): boolean {
+    return method === 'POST' || method === 'PUT' || method === 'DELETE' || 
+           path.includes('/approve') || path.includes('/deny') || 
+           path.includes('/create') || path.includes('/update') || 
+           path.includes('/delete');
+  }
+
+  /**
+   * Validate user session
+   */
+  private validateSession(req: http.IncomingMessage, res: http.ServerResponse): boolean {
+    const cookies = this.parseCookies(req.headers.cookie || '');
+    const sessionId = cookies['session-id'];
+    
+    if (!sessionId) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Authentication required' }));
+      return false;
+    }
+
+    const session = this.sessions.get(sessionId);
+    if (!session || Date.now() > session.expires) {
+      // Clear expired session
+      this.sessions.delete(sessionId);
+      res.setHeader('Set-Cookie', this.generateCookie('session-id', '', { maxAge: 0 }));
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Session expired' }));
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Validate CSRF token
+   */
+  private validateCSRFToken(req: http.IncomingMessage, res: http.ServerResponse): boolean {
+    if (!this.options.security?.enableCSRF) {
+      return true; // CSRF protection disabled
+    }
+
+    const cookies = this.parseCookies(req.headers.cookie || '');
+    const sessionId = cookies['session-id'];
+    const csrfToken = req.headers['x-csrf-token'] as string;
+
+    if (!sessionId || !csrfToken) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'CSRF token required' }));
+      return false;
+    }
+
+    const storedToken = this.csrfTokens.get(sessionId);
+    if (!storedToken || storedToken.token !== csrfToken || Date.now() > storedToken.expires) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid CSRF token' }));
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Handle login
+   */
+  private async handleLogin(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'text/plain' });
+      res.end('Method not allowed');
+      return;
+    }
+
+    try {
+      const body = await this.parseRequestBody(req);
+      const { username, password } = body;
+
+      // Simple authentication for demo - in production use proper auth
+      if (username === 'admin' && password === 'admin123') {
+        const sessionId = this.generateSessionId();
+        const csrfToken = this.generateCSRFToken();
+        
+        // Store session
+        this.sessions.set(sessionId, {
+          userId: username,
+          expires: Date.now() + (this.options.security?.maxAge || 24 * 60 * 60 * 1000)
+        });
+
+        // Store CSRF token
+        this.csrfTokens.set(sessionId, {
+          token: csrfToken,
+          expires: Date.now() + (this.options.security?.maxAge || 24 * 60 * 60 * 1000)
+        });
+
+        // Set secure cookies
+        res.setHeader('Set-Cookie', [
+          this.generateCookie('session-id', sessionId),
+          this.generateCookie('csrf-token', csrfToken)
+        ]);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, redirect: '/dashboard' }));
+      } else {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid credentials' }));
+      }
+    } catch (error) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid request' }));
+    }
+  }
+
+  /**
+   * Handle logout
+   */
+  private async handleLogout(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+    const cookies = this.parseCookies(req.headers.cookie || '');
+    const sessionId = cookies['session-id'];
+
+    if (sessionId) {
+      this.sessions.delete(sessionId);
+      this.csrfTokens.delete(sessionId);
+    }
+
+    // Clear cookies
+    res.setHeader('Set-Cookie', [
+      this.generateCookie('session-id', '', { maxAge: 0 }),
+      this.generateCookie('csrf-token', '', { maxAge: 0 })
+    ]);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, redirect: '/login' }));
+  }
+
+  /**
+   * Generate secure session ID
+   */
+  private generateSessionId(): string {
+    return crypto.randomBytes(32).toString('hex');
+  }
+
+  /**
+   * Generate CSRF token
+   */
+  private generateCSRFToken(): string {
+    return crypto.randomBytes(32).toString('hex');
+  }
+
+  /**
+   * Generate secure cookie
+   */
+  private generateCookie(name: string, value: string, options: any = {}): string {
+    const opts = {
+      httpOnly: this.options.security?.httpOnly || true,
+      secure: this.options.security?.secureCookies || false,
+      sameSite: this.options.security?.sameSite || 'strict',
+      path: '/',
+      maxAge: this.options.security?.maxAge || 24 * 60 * 60 * 1000,
+      ...options
+    };
+
+    let cookie = `${name}=${value}`;
+    if (opts.httpOnly) cookie += '; HttpOnly';
+    if (opts.secure) cookie += '; Secure';
+    if (opts.sameSite) cookie += `; SameSite=${opts.sameSite}`;
+    if (opts.path) cookie += `; Path=${opts.path}`;
+    if (opts.maxAge) cookie += `; Max-Age=${opts.maxAge}`;
+
+    return cookie;
+  }
+
+  /**
+   * Parse cookies from header
+   */
+  private parseCookies(cookieHeader: string): Record<string, string> {
+    const cookies: Record<string, string> = {};
+    cookieHeader.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      if (name && value) {
+        cookies[name] = value;
+      }
+    });
+    return cookies;
   }
 
   /**
@@ -480,6 +750,7 @@ export class WebDashboard {
 class DashboardClient {
     constructor() {
         this.updateInterval = null;
+        this.csrfToken = this.getCSRFToken();
         this.init();
     }
 
@@ -488,6 +759,10 @@ class DashboardClient {
         this.loadApprovals();
         this.startAutoRefresh();
         this.setupEventListeners();
+    }
+
+    getCSRFToken() {
+        return document.cookie.split('; ').find(row => row.startsWith('csrf-token='))?.split('=')[1];
     }
 
     async loadMetrics() {
@@ -558,7 +833,10 @@ class DashboardClient {
         try {
             await fetch('/api/approvals/approve', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken
+                },
                 body: JSON.stringify({ requestId, approverId: 'web-dashboard', reason: 'Approved via web dashboard' })
             });
             
@@ -573,7 +851,10 @@ class DashboardClient {
         try {
             await fetch('/api/approvals/deny', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken
+                },
                 body: JSON.stringify({ requestId, approverId: 'web-dashboard', reason: 'Denied via web dashboard' })
             });
             
