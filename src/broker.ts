@@ -176,6 +176,20 @@ export class AgentKeyBroker {
         return;
       }
 
+      // Health check endpoint
+      if (req.url === '/health' && req.method === 'GET') {
+        const uptime = process.uptime();
+        const health = {
+          status: 'healthy',
+          uptime: Math.floor(uptime),
+          version: '0.5.0',
+          timestamp: new Date().toISOString()
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(health));
+        return;
+      }
+
       // Rate limiting
       if (!this.checkRateLimit(req)) {
         res.writeHead(429, { 'Content-Type': 'application/json' });
@@ -369,7 +383,7 @@ export class AgentKeyBroker {
   /**
    * Validate JWT token and extract data
    */
-  private async validateToken(token: string): Promise<{ agent: string; scope: string; jti: string } | null> {
+  public async validateToken(token: string): Promise<{ agent: string; scope: string; jti: string } | null> {
     try {
       // Verify token signature
       const payload = await this.signer.verify(token);
@@ -399,6 +413,24 @@ export class AgentKeyBroker {
       };
     } catch (error) {
       return null;
+    }
+  }
+
+  /**
+   * Validate if a token has a specific scope
+   */
+  public async validateScope(token: string, requiredScope: string): Promise<boolean> {
+    try {
+      const tokenData = await this.validateToken(token);
+      if (!tokenData) {
+        return false;
+      }
+
+      // Check if the token has the required scope
+      const tokenScopes = Array.isArray(tokenData.scope) ? tokenData.scope : [tokenData.scope];
+      return tokenScopes.includes(requiredScope);
+    } catch (error) {
+      return false;
     }
   }
 

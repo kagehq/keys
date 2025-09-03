@@ -37,8 +37,11 @@ export class Dashboard extends EventEmitter {
       this.startLiveStreaming();
     }
 
+    // Delay metrics updates to ensure auditLogger is ready
     if (this.options.updateIntervalMs) {
-      this.startMetricsUpdates();
+      setTimeout(() => {
+        this.startMetricsUpdates();
+      }, 1000);
     }
   }
 
@@ -113,6 +116,21 @@ export class Dashboard extends EventEmitter {
    * Get comprehensive dashboard metrics
    */
   async getMetrics(timeRange: { start: string; end: string }): Promise<DashboardMetrics> {
+    // Check if auditLogger is available
+    if (!this.auditLogger) {
+      return {
+        timeRange,
+        scopesIssued: [],
+        blockAllowRatio: [],
+        topAgents: [],
+        topProviders: [],
+        slowEndpoints: [],
+        totalRequests: 0,
+        successRate: 0,
+        averageResponseTime: 0
+      };
+    }
+
     const [scopesIssued, blockAllowRatio, topAgents, topProviders, slowEndpoints, overallStats] = await Promise.all([
       this.getScopesIssuedMetrics(timeRange),
       this.getBlockAllowRatioMetrics(timeRange),
@@ -461,35 +479,55 @@ export class Dashboard extends EventEmitter {
     averageResponseTime: number;
     activeAgents: number;
   }> {
+    // Check if auditLogger is available
+    if (!this.auditLogger) {
+      return {
+        requestsPerMinute: 0,
+        successRate: 0,
+        averageResponseTime: 0,
+        activeAgents: 0
+      };
+    }
+
     const now = new Date();
     const windowStart = new Date(now.getTime() - windowMs);
     
-    const logs = await this.auditLogger.queryLogs({
-      startTime: windowStart.toISOString(),
-      endTime: now.toISOString(),
-      limit: 1000
-    });
+    try {
+      const logs = await this.auditLogger.queryLogs({
+        startTime: windowStart.toISOString(),
+        endTime: now.toISOString(),
+        limit: 1000
+      });
 
-    const requestsPerMinute = (logs.length / (windowMs / (60 * 1000)));
-    const successCount = logs.filter(log => log.status === 'success').length;
-    const successRate = logs.length > 0 ? (successCount / logs.length) * 100 : 0;
-    
-    const responseTimes = logs
-      .filter(log => log.duration)
-      .map(log => log.duration);
-    
-    const averageResponseTime = responseTimes.length > 0 
-      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length 
-      : 0;
+      const requestsPerMinute = (logs.length / (windowMs / (60 * 1000)));
+      const successCount = logs.filter(log => log.status === 'success').length;
+      const successRate = logs.length > 0 ? (successCount / logs.length) * 100 : 0;
+      
+      const responseTimes = logs
+        .filter(log => log.duration)
+        .map(log => log.duration);
+      
+      const averageResponseTime = responseTimes.length > 0 
+        ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length 
+        : 0;
 
-    const activeAgents = new Set(logs.map(log => log.agent)).size;
+      const activeAgents = new Set(logs.map(log => log.agent)).size;
 
-    return {
-      requestsPerMinute: Math.round(requestsPerMinute * 100) / 100,
-      successRate: Math.round(successRate * 100) / 100,
-      averageResponseTime: Math.round(averageResponseTime),
-      activeAgents
-    };
+      return {
+        requestsPerMinute: Math.round(requestsPerMinute * 100) / 100,
+        successRate: Math.round(successRate * 100) / 100,
+        averageResponseTime: Math.round(averageResponseTime),
+        activeAgents
+      };
+    } catch (error) {
+      console.error('Failed to get real-time metrics:', error);
+      return {
+        requestsPerMinute: 0,
+        successRate: 0,
+        averageResponseTime: 0,
+        activeAgents: 0
+      };
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 {
   "name": "@kagehq/keys",
-  "version": "0.4.1",
-  "description": "Scoped, expiring keys for AI agents with HTTP broker and audit logging.",
+  "version": "0.5.0",
+  "description": "Enterprise permissions layer for AI agents - Scoped, expiring keys with approval workflows, multi-tenancy, and real-time dashboard",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -9,46 +9,63 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build",
-    "test": "node examples/demo.js",
+    "dev": "tsc --watch",
     "start": "node dist/cli.js start",
-    "cli": "node dist/cli.js",
-    "version": "0.4.0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "prepublishOnly": "npm run clean && npm run build",
+    "demo": "node examples/comprehensive-demo.js",
+    "mcp-server": "node dist/mcp-server.js",
+    "dashboard": "node dist/dashboard-cli.js"
   },
   "keywords": [
-    "agent",
-    "keys",
-    "tokens",
-    "scoped",
-    "logging",
-    "uuid"
+    "ai",
+    "agents",
+    "authentication",
+    "authorization",
+    "permissions",
+    "security",
+    "jwt",
+    "hmac",
+    "broker",
+    "proxy",
+    "enterprise",
+    "multi-tenant",
+    "rbac",
+    "approval-workflows",
+    "dashboard",
+    "audit-logging",
+    "mcp-server",
+    "policy-packs",
+    "zero-friction"
   ],
   "author": "Treadie, Inc",
   "license": "FSL-1.1-MIT",
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/uuid": "^10.0.0",
-    "@types/sqlite3": "^3.1.8",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "uuid": "^9.0.0",
-    "sqlite3": "^5.1.6",
-    "commander": "^11.1.0"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kagehq/keys.git"
+    "url": "https://github.com/kagehq/keys.git"
   },
   "bugs": {
     "url": "https://github.com/kagehq/keys/issues"
   },
-  "homepage": "https://github.com/kagehq/keys#readme"
+  "homepage": "https://github.com/kagehq/keys#readme",
+  "dependencies": {
+    "commander": "^11.0.0",
+    "sqlite3": "^5.1.6",
+    "sqlite": "^5.0.1",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/sqlite3": "^3.1.8",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ]
 }

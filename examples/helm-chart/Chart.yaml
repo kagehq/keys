@@ -1,0 +1,19 @@
+apiVersion: v2
+name: kage-keys
+description: A Helm chart for Kage Keys - Enterprise permissions layer for AI agents
+type: application
+version: 0.5.0
+appVersion: "0.5.0"
+keywords:
+  - kage-keys
+  - ai-agents
+  - permissions
+  - authentication
+  - security
+home: https://github.com/kagehq/keys
+sources:
+  - https://github.com/kagehq/keys
+maintainers:
+  - name: Kage HQ
+    email: team@kagehq.com
+icon: https://raw.githubusercontent.com/kagehq/keys/main/docs/icon.png

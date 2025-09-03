@@ -1,0 +1,81 @@
+# GitHub Actions + Kage Keys Token Generation
+# 
+# This workflow shows how to generate one-time tokens for external services
+# using Kage Keys in GitHub Actions.
+
+name: Generate One-Time Token
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to generate token for'
+        required: true
+        type: choice
+        options:
+        - openai
+        - github
+        - aws
+        - slack
+      scope:
+        description: 'Scope for the token'
+        required: true
+        default: 'read'
+        type: string
+      duration:
+        description: 'Token duration in minutes'
+        required: true
+        default: '60'
+        type: number
+
+env:
+  KAGE_KEYS_BROKER_URL: ${{ secrets.KAGE_KEYS_BROKER_URL }}
+  KAGE_KEYS_BROKER_TOKEN: ${{ secrets.KAGE_KEYS_BROKER_TOKEN }}
+
+jobs:
+  generate-token:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Kage Keys
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Kage Keys
+      run: npm install -g @kagehq/keys
+      
+    - name: Generate one-time token
+      env:
+        KAGE_KEYS_BROKER_URL: ${{ env.KAGE_KEYS_BROKER_URL }}
+        KAGE_KEYS_BROKER_TOKEN: ${{ env.KAGE_KEYS_BROKER_TOKEN }}
+      run: |
+        echo "🔑 Generating one-time token for ${{ github.event.inputs.service }}..."
+        
+        TOKEN=$(kage-keys create-token \
+          --agent "workflow-${{ github.run_id }}" \
+          --scope "${{ github.event.inputs.service }}:${{ github.event.inputs.scope }}" \
+          --duration ${{ github.event.inputs.duration * 60 }} \
+          --broker-url "$KAGE_KEYS_BROKER_URL" \
+          --broker-token "$KAGE_KEYS_BROKER_TOKEN")
+          
+        echo "✅ Token generated successfully"
+        echo "🔐 Token: $TOKEN"
+        echo "📋 Scope: ${{ github.event.inputs.service }}:${{ github.event.inputs.scope }}"
+        echo "⏰ Expires: ${{ github.event.inputs.duration }} minutes"
+        
+        # Store token in workflow output for other jobs to use
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+        
+    - name: Use token example
+      run: |
+        echo "💡 Example usage:"
+        echo "   export API_TOKEN='${{ steps.generate-token.outputs.token }}'"
+        echo "   curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.com/endpoint"
+        
+        echo ""
+        echo "🔒 Security features:"
+        echo "   - Token expires in ${{ github.event.inputs.duration }} minutes"
+        echo "   - Scope limited to: ${{ github.event.inputs.service }}:${{ github.event.inputs.scope }}"
+        echo "   - All usage is audited and logged"
+        echo "   - Token can be revoked immediately if needed"

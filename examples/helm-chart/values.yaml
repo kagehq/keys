@@ -1,0 +1,243 @@
+# Default values for Kage Keys Helm chart
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  environment: production
+  domain: kage-keys.local
+
+# Broker configuration
+broker:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: kagehq/keys
+    tag: "0.5.0"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  
+  env:
+    NODE_ENV: production
+    KAGE_KEYS_BROKER_PORT: 3000
+    KAGE_KEYS_LOG_LEVEL: info
+  
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 10Gi
+    accessMode: ReadWriteOnce
+
+# Dashboard configuration
+dashboard:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: kagehq/keys
+    tag: "0.5.0"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  
+  env:
+    NODE_ENV: production
+    KAGE_KEYS_DASHBOARD_PORT: 8080
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: dashboard.kage-keys.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: kage-keys-dashboard-tls
+        hosts:
+          - dashboard.kage-keys.local
+
+# MCP Server configuration
+mcpServer:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: kagehq/keys
+    tag: "0.5.0"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3001
+    targetPort: 3001
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  
+  env:
+    NODE_ENV: production
+    KAGE_KEYS_MCP_PORT: 3001
+    KAGE_KEYS_BROKER_URL: http://kage-keys-broker:3000
+
+# Database configuration
+database:
+  # PostgreSQL
+  postgresql:
+    enabled: false
+    image:
+      repository: postgres
+      tag: "15"
+    auth:
+      postgresPassword: ""
+      database: kage_keys
+      username: kage_keys_user
+      password: ""
+    primary:
+      persistence:
+        enabled: true
+        size: 8Gi
+  
+  # Redis for caching and rate limiting
+  redis:
+    enabled: false
+    image:
+      repository: redis
+      tag: "7-alpine"
+    auth:
+      enabled: false
+      password: ""
+    master:
+      persistence:
+        enabled: true
+        size: 5Gi
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.kage-keys.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: kage-keys-api-tls
+      hosts:
+        - api.kage-keys.local
+
+# Security configuration
+security:
+  # mTLS configuration
+  mtls:
+    enabled: false
+    caSecret: ""
+    clientCertSecret: ""
+    serverCertSecret: ""
+  
+  # RBAC configuration
+  rbac:
+    enabled: true
+    create: true
+  
+  # Service account configuration
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: {}
+
+# Monitoring and observability
+monitoring:
+  # Prometheus metrics
+  prometheus:
+    enabled: false
+    serviceMonitor:
+      enabled: false
+      interval: 30s
+  
+  # Grafana dashboards
+  grafana:
+    enabled: false
+    dashboard:
+      enabled: false
+      label: grafana_dashboard
+  
+  # Logging
+  logging:
+    enabled: false
+    fluentd:
+      enabled: false
+    elasticsearch:
+      enabled: false
+
+# Backup and disaster recovery
+backup:
+  enabled: false
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 30
+  storage:
+    type: s3
+    bucket: ""
+    region: ""
+    accessKeyId: ""
+    secretAccessKey: ""
+
+# Affinity and anti-affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - kage-keys
+          topologyKey: kubernetes.io/hostname
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Annotations
+annotations: {}
+
+# Labels
+labels: {}

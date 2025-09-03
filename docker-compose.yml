@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  kage-keys-broker:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - BROKER_PORT=3000
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "dist/cli.js", "health", "--port", "3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  kage-keys-dashboard:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - DASHBOARD_PORT=8080
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    restart: unless-stopped
+    depends_on:
+      - kage-keys-broker
+    command: ["npm", "run", "dashboard"]
+
+  kage-keys-mcp:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - MCP_PORT=3001
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    restart: unless-stopped
+    depends_on:
+      - kage-keys-broker
+    command: ["npm", "run", "mcp-server"]
+
+volumes:
+  logs:
+  config:

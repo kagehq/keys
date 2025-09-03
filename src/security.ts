@@ -432,12 +432,37 @@ export class SecurityManager {
   /**
    * Mask sensitive data in logs
    */
-  maskSensitiveData(data: string): string {
+  maskSensitiveData(data: string | object): string | object {
     if (!this.config.audit.enabled) {
       return data;
     }
 
-    let masked = data;
+    // If data is an object, convert to string first
+    if (typeof data === 'object') {
+      const dataStr = JSON.stringify(data);
+      let masked = dataStr;
+
+      // Apply pattern masks
+      this.config.audit.maskPatterns.forEach(pattern => {
+        masked = masked.replace(pattern, '[REDACTED]');
+      });
+
+      // Mask sensitive fields
+      this.config.audit.sensitiveFields.forEach(field => {
+        const regex = new RegExp(`"${field}"\\s*:\\s*"[^"]*"`, 'gi');
+        masked = masked.replace(regex, `"${field}": "[REDACTED]"`);
+      });
+
+      // Return parsed object
+      try {
+        return JSON.parse(masked);
+      } catch {
+        return masked;
+      }
+    }
+
+    // Handle string data
+    let masked = data as string;
 
     // Apply pattern masks
     this.config.audit.maskPatterns.forEach(pattern => {

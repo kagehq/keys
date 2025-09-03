@@ -1,29 +1,234 @@
 {
-  "49b5c6af-6fa6-4f37-9d08-36528a8ec44a": {
-    "id": "49b5c6af-6fa6-4f37-9d08-36528a8ec44a",
-    "projectId": "0c12943c-2b0a-4913-8a95-9e7978873176",
+  "ffe6ff17-e58f-4da3-a239-8b5c1c7a8e93": {
+    "id": "ffe6ff17-e58f-4da3-a239-8b5c1c7a8e93",
+    "projectId": "c31652d1-f839-4467-92a0-555b0252dac8",
     "name": "Customer Support AI",
     "description": "AI agent for customer support",
     "type": "ai-assistant",
     "status": "active",
-    "createdAt": "2025-09-02T23:37:40.251Z",
+    "createdAt": "2025-09-03T01:54:56.595Z",
     "metadata": {},
     "scopeBundles": [
-      "ai_assistant",
-      "team_collaborator"
+      "support_tools",
+      "basic_llm"
     ]
   },
-  "5cf2ba59-9670-4f81-8bbe-36d5bfa65e84": {
-    "id": "5cf2ba59-9670-4f81-8bbe-36d5bfa65e84",
-    "projectId": "0c12943c-2b0a-4913-8a95-9e7978873176",
-    "name": "Code Review Bot",
-    "description": "AI agent for automated code reviews",
-    "type": "code-reviewer",
+  "360c22dc-233f-4783-9706-1c22f0856c25": {
+    "id": "360c22dc-233f-4783-9706-1c22f0856c25",
+    "projectId": "c31652d1-f839-4467-92a0-555b0252dac8",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
     "status": "active",
-    "createdAt": "2025-09-02T23:37:40.251Z",
+    "createdAt": "2025-09-03T01:54:56.595Z",
     "metadata": {},
     "scopeBundles": [
-      "code_reviewer"
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "bd1c4232-f2ac-4f8b-87b8-22cf3abeba06": {
+    "id": "bd1c4232-f2ac-4f8b-87b8-22cf3abeba06",
+    "projectId": "822229f0-a0cf-48d3-bbf4-f0a51a54f7e1",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:55:44.233Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "2e844e25-6314-4cd6-9dd3-35480c6225f8": {
+    "id": "2e844e25-6314-4cd6-9dd3-35480c6225f8",
+    "projectId": "822229f0-a0cf-48d3-bbf4-f0a51a54f7e1",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:55:44.233Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "6d8b83bb-7073-4cb1-be17-81fef0133755": {
+    "id": "6d8b83bb-7073-4cb1-be17-81fef0133755",
+    "projectId": "8650dafb-c062-4979-b753-e9b19007059f",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:56:04.266Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "6c1758f9-7b90-4445-8d97-6e49bb05dea4": {
+    "id": "6c1758f9-7b90-4445-8d97-6e49bb05dea4",
+    "projectId": "8650dafb-c062-4979-b753-e9b19007059f",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:56:04.266Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "24c5759f-7f52-4b4d-88c0-59cf243321a1": {
+    "id": "24c5759f-7f52-4b4d-88c0-59cf243321a1",
+    "projectId": "4ac9a76b-0cf0-4a7f-937a-758ac7e90c83",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:56:55.034Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "c511f371-dab4-49f2-bd2a-2743447baf73": {
+    "id": "c511f371-dab4-49f2-bd2a-2743447baf73",
+    "projectId": "4ac9a76b-0cf0-4a7f-937a-758ac7e90c83",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:56:55.035Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "770daa45-25eb-4b1f-b2b1-56ab48a5f334": {
+    "id": "770daa45-25eb-4b1f-b2b1-56ab48a5f334",
+    "projectId": "de379fbe-6346-4aa6-82d8-adfd1d5d3a6c",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:57:14.381Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "0561e9dd-a800-48e7-90a6-64d66414f933": {
+    "id": "0561e9dd-a800-48e7-90a6-64d66414f933",
+    "projectId": "de379fbe-6346-4aa6-82d8-adfd1d5d3a6c",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:57:14.381Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "b60fc28f-2872-477c-9108-04e46a18af70": {
+    "id": "b60fc28f-2872-477c-9108-04e46a18af70",
+    "projectId": "fe22a60b-a2b1-4857-afbc-cbbfc2e82820",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:58:18.972Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "0a17ee3b-27e2-4ba3-bff1-3658799518e9": {
+    "id": "0a17ee3b-27e2-4ba3-bff1-3658799518e9",
+    "projectId": "fe22a60b-a2b1-4857-afbc-cbbfc2e82820",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:58:18.972Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "5fa6db05-5be1-46b6-b22c-0bbb3099bb9e": {
+    "id": "5fa6db05-5be1-46b6-b22c-0bbb3099bb9e",
+    "projectId": "5a357224-83d8-45ec-acb7-f433b49c8446",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:58:57.504Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "b9dc18cf-728e-43ac-b188-476697e88c4e": {
+    "id": "b9dc18cf-728e-43ac-b188-476697e88c4e",
+    "projectId": "5a357224-83d8-45ec-acb7-f433b49c8446",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:58:57.504Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
+    ]
+  },
+  "443b5e98-d28d-49a6-ac36-6762a6c7dbcd": {
+    "id": "443b5e98-d28d-49a6-ac36-6762a6c7dbcd",
+    "projectId": "d53c0d05-d494-4389-bff8-b408eb6e5c60",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:59:29.425Z",
+    "metadata": {},
+    "scopeBundles": [
+      "support_tools",
+      "basic_llm"
+    ]
+  },
+  "b50fa36e-b4cf-4ed4-bffd-9ee0b5a1eca0": {
+    "id": "b50fa36e-b4cf-4ed4-bffd-9ee0b5a1eca0",
+    "projectId": "d53c0d05-d494-4389-bff8-b408eb6e5c60",
+    "name": "Developer AI",
+    "description": "AI agent for development tasks",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-03T01:59:29.425Z",
+    "metadata": {},
+    "scopeBundles": [
+      "github_ops",
+      "code_analysis",
+      "advanced_llm"
     ]
   }
 }

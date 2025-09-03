@@ -3,6 +3,8 @@
 import { Command } from 'commander';
 import { AgentKeyBroker, HMACSigner, SQLiteAuditLogger, ScopeCatalog } from './index';
 import { StartOptions, LogsOptions, StatsOptions, TokenCreateOptions, TokenVerifyOptions, TokenRevokeOptions, DatabaseOptions, DatabaseCleanupOptions } from './cli-types';
+import { PolicyPacks } from './policy-packs';
+import fs from 'fs';
 
 const program = new Command();
 
@@ -302,6 +304,166 @@ program
     }
   });
 
+// List available policy packs
+program
+  .command('packs')
+  .description('List available policy packs for common AI agent use cases')
+  .option('--list', 'List all available policy packs')
+  .option('--info <pack-name>', 'Show detailed information about a specific policy pack')
+  .option('--create <pack-name>', 'Create a new project using a specific policy pack')
+  .option('-d, --dir <path>', 'Project directory for pack creation', './kage-keys-{pack-name}')
+  .action(async (options: any) => {
+    try {
+      // Initialize policy packs
+      PolicyPacks.initialize();
+      
+      if (options.list) {
+        console.log('📦 Available Policy Packs:\n');
+        const packs = PolicyPacks.getAllPacks();
+        packs.forEach(pack => {
+          console.log(`🔹 ${pack.name}`);
+          console.log(`   ${pack.description}`);
+          console.log(`   Scopes: ${pack.scopes.length}`);
+          console.log(`   Rate Limit: ${pack.rateLimits.requestsPerMinute}/min\n`);
+        });
+        return;
+      }
+      
+      if (options.info) {
+        const pack = PolicyPacks.getPack(options.info);
+        if (!pack) {
+          console.error(`❌ Policy pack '${options.info}' not found`);
+          process.exit(1);
+        }
+        
+        console.log(`📦 Policy Pack: ${pack.name}\n`);
+        console.log(`📝 Description: ${pack.description}\n`);
+        console.log(`🔑 Scopes:`);
+        pack.scopes.forEach(scope => console.log(`   - ${scope}`));
+        console.log(`\n🛣️  Routes:`);
+        pack.routes.forEach(route => {
+          console.log(`   - ${route.method} ${route.path} (${route.scope})`);
+          console.log(`     ${route.description}`);
+        });
+        console.log(`\n⏱️  Rate Limits:`);
+        console.log(`   - Per Minute: ${pack.rateLimits.requestsPerMinute} requests`);
+        console.log(`   - Per Hour: ${pack.rateLimits.requestsPerHour} requests`);
+        console.log(`   - Burst Limit: ${pack.rateLimits.burstLimit} requests`);
+        console.log(`\n📚 Dependencies:`);
+        pack.dependencies.forEach(dep => console.log(`   - ${dep}`));
+        console.log(`\n🔧 Setup Instructions:`);
+        console.log(`   ${pack.setupInstructions}`);
+        return;
+      }
+      
+      if (options.create) {
+        const packName = options.create;
+        const pack = PolicyPacks.getPack(packName);
+        if (!pack) {
+          console.error(`❌ Policy pack '${packName}' not found`);
+          console.log('\nAvailable packs:');
+          PolicyPacks.getPackNames().forEach(name => console.log(`  - ${name}`));
+          process.exit(1);
+        }
+        
+        const projectDir = options.dir.replace('{pack-name}', packName);
+        console.log(`🚀 Creating ${packName} project at ${projectDir}...\n`);
+        
+        // Create project directory
+        if (!fs.existsSync(projectDir)) {
+          fs.mkdirSync(projectDir, { recursive: true });
+        }
+        
+        // Generate policy pack project files
+        PolicyPacks.generateProjectFiles(packName, projectDir);
+        
+        console.log('✅ Policy pack project created successfully!');
+        console.log(`📁 Project created at: ${projectDir}`);
+        console.log('\n🚀 Next steps:');
+        console.log(`  cd ${projectDir}`);
+        console.log('  npm install');
+        console.log('  cp .env.example .env');
+        console.log('  # Edit .env with your API keys');
+        console.log('  npm start');
+        console.log('\n📚 Documentation:');
+        console.log(`  - Policy Pack: ${packName}`);
+        console.log(`  - README.md in project directory`);
+        return;
+      }
+      
+      // Default: show help
+      console.log('📦 Kage Keys Policy Packs\n');
+      console.log('Available commands:');
+      console.log('  kage-keys packs --list                    # List all available policy packs');
+      console.log('  kage-keys packs --info <pack-name>        # Show detailed pack information');
+      console.log('  kage-keys packs --create <pack-name>      # Create project with specific pack');
+      console.log('\nAvailable policy packs:');
+      PolicyPacks.getPackNames().forEach(name => console.log(`  - ${name}`));
+      
+    } catch (error) {
+      console.error('Failed to handle policy packs:', error);
+      process.exit(1);
+    }
+  });
+
+// Initialize project
+program
+  .command('init')
+  .description('Initialize a new Kage Keys project')
+  .option('-d, --docker', 'Include Docker configuration')
+  .option('-h, --helm', 'Include Helm charts')
+  .option('-g, --github-action', 'Include GitHub Actions workflows')
+  .option('-p, --port <number>', 'Default broker port', '3000')
+  .action(async (options: any) => {
+    try {
+      console.log('🚀 Initializing new Kage Keys project...\n');
+      
+      const projectDir = './kage-keys-project';
+      
+      // Create project directory
+      if (!fs.existsSync(projectDir)) {
+        fs.mkdirSync(projectDir, { recursive: true });
+      }
+      
+      // Import project generator functions
+      const { generateConfigFiles, generateExampleIntegrations, generateDockerConfig, generateHelmChart, generateGitHubAction, generatePackageJson, generateREADME } = await import('./project-generator');
+      
+      // Generate basic config files
+      await generateConfigFiles(projectDir, { port: options.port });
+      await generateExampleIntegrations(projectDir);
+      
+      // Generate optional configurations
+      if (options.docker) {
+        await generateDockerConfig(projectDir);
+      }
+      
+      if (options.helm) {
+        await generateHelmChart(projectDir);
+      }
+      
+      if (options.githubAction) {
+        await generateGitHubAction(projectDir);
+      }
+      
+      // Generate package.json and README
+      await generatePackageJson(projectDir);
+      await generateREADME(projectDir);
+      
+      console.log('✅ Project initialized successfully!');
+      console.log(`📁 Project created at: ${projectDir}`);
+      console.log('\n🚀 Next steps:');
+      console.log(`  cd ${projectDir}`);
+      console.log('  npm install');
+      console.log('  cp .env.example .env');
+      console.log('  # Edit .env with your API keys');
+      console.log('  npm start');
+      
+    } catch (error) {
+      console.error('Failed to initialize project:', error);
+      process.exit(1);
+    }
+  });
+
 // Database management
 program
   .command('db')
@@ -346,5 +508,136 @@ program
         }
       })
   );
+
+// Show agent information
+program
+  .command('agents')
+  .description('Show agent information and statistics')
+  .option('--show <agent-id>', 'Show detailed information for specific agent')
+  .option('--db <path>', 'Audit database path', 'audit.db')
+  .action(async (options: any) => {
+    try {
+      const logger = new SQLiteAuditLogger(options.db);
+      
+      if (options.show) {
+        // Show specific agent details
+        const agentLogs = await logger.queryLogs({
+          agent: options.show,
+          limit: 100
+        });
+        
+        if (agentLogs.length === 0) {
+          console.log(`❌ No logs found for agent: ${options.show}`);
+          return;
+        }
+        
+        console.log(`\n🤖 Agent: ${options.show}\n`);
+        console.log('📊 Recent Activity:');
+        agentLogs.slice(0, 10).forEach(log => {
+          console.log(`  ${log.timestamp} - ${log.scope} - ${log.status} (${log.duration}ms)`);
+        });
+        
+        // Calculate stats
+        const totalRequests = agentLogs.length;
+        const successCount = agentLogs.filter(log => log.status === 'success').length;
+        const avgDuration = agentLogs.reduce((sum, log) => sum + log.duration, 0) / totalRequests;
+        
+        console.log('\n📈 Statistics:');
+        console.log(`  Total Requests: ${totalRequests}`);
+        console.log(`  Success Rate: ${((successCount / totalRequests) * 100).toFixed(1)}%`);
+        console.log(`  Average Duration: ${avgDuration.toFixed(2)}ms`);
+        
+      } else {
+        // Show all agents summary
+        const stats = await logger.getStats();
+        
+        console.log('\n🤖 Agent Summary\n');
+        if (stats.topAgents.length > 0) {
+          console.log('Top Agents:');
+          stats.topAgents.forEach((agent, i) => {
+            console.log(`  ${i + 1}. ${agent.agent} - ${agent.count} requests`);
+          });
+        } else {
+          console.log('No agent activity recorded yet.');
+        }
+      }
+      
+    } catch (error) {
+      console.error('Failed to show agent information:', error);
+      process.exit(1);
+    }
+  });
+
+// Configuration management
+program
+  .command('config')
+  .description('Show and modify broker configuration')
+  .option('--show <key>', 'Show specific configuration value')
+  .option('--set <key> <value>', 'Set configuration value')
+  .option('--db <path>', 'Audit database path', 'audit.db')
+  .action(async (options: any) => {
+    try {
+      if (options.show) {
+        // Show specific config
+        if (options.show === 'rate-limit') {
+          console.log('\n⏱️ Rate Limit Configuration:');
+          console.log('  Default: 100 requests per 15 minutes');
+          console.log('  Per-agent: 50 requests per 15 minutes');
+          console.log('  Burst: 200 requests per minute');
+        } else {
+          console.log(`\n🔧 Configuration: ${options.show}`);
+          console.log('  Value: Not implemented yet');
+        }
+      } else if (options.set) {
+        console.log(`\n🔧 Configuration changes not implemented yet`);
+        console.log('  Edit config files manually for now');
+      } else {
+        // Show all config
+        console.log('\n🔧 Broker Configuration:');
+        console.log('  Port: 3000 (default)');
+        console.log('  Database: SQLite');
+        console.log('  Rate Limiting: Enabled');
+        console.log('  HTTPS: Disabled (default)');
+        console.log('  mTLS: Disabled (default)');
+      }
+      
+    } catch (error) {
+      console.error('Failed to manage configuration:', error);
+      process.exit(1);
+    }
+  });
+
+// Health check
+program
+  .command('health')
+  .description('Check broker health and connectivity')
+  .option('--port <number>', 'Broker port to check', '3000')
+  .action(async (options: any) => {
+    try {
+      const port = options.port;
+      console.log(`🏥 Checking broker health on port ${port}...`);
+      
+      try {
+        const response = await fetch(`http://localhost:${port}/health`);
+        if (response.ok) {
+          console.log('✅ Broker is healthy and responding');
+          const health = await response.json() as any;
+          console.log(`  Status: ${health.status}`);
+          console.log(`  Uptime: ${health.uptime}`);
+          console.log(`  Version: ${health.version}`);
+        } else {
+          console.log(`❌ Broker responded with status: ${response.status}`);
+        }
+      } catch (error) {
+        console.log('❌ Broker is not responding');
+        console.log('  Make sure the broker is running with: npm start');
+        console.log(`  Expected port: ${port}`);
+      }
+      
+    } catch (error) {
+      console.error('Failed to check health:', error);
+      process.exit(1);
+    }
+  });
 
 program.parse();

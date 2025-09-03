@@ -1,0 +1,136 @@
+# Docker + Kage Keys Integration
+# 
+# This docker-compose.yml file shows how to run Kage Keys
+# in a containerized environment with proper networking and volumes.
+
+version: '3.8'
+
+services:
+  # Kage Keys Broker Service
+  kage-keys-broker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kage-keys-broker
+    ports:
+      - "3000:3000"  # Broker API
+      - "8080:8080"  # Web Dashboard
+    environment:
+      - NODE_ENV=production
+      - KAGE_KEYS_BROKER_PORT=3000
+      - KAGE_KEYS_DASHBOARD_PORT=8080
+      - KAGE_KEYS_DB_PATH=/data/kage-keys.db
+      - KAGE_KEYS_LOG_LEVEL=info
+    volumes:
+      - kage-keys-data:/data
+      - kage-keys-logs:/logs
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Kage Keys MCP Server
+  kage-keys-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kage-keys-mcp
+    command: ["npm", "run", "mcp-server"]
+    ports:
+      - "3001:3001"  # MCP Server
+    environment:
+      - NODE_ENV=production
+      - KAGE_KEYS_MCP_PORT=3001
+      - KAGE_KEYS_BROKER_URL=http://kage-keys-broker:3000
+    volumes:
+      - kage-keys-data:/data
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+    depends_on:
+      kage-keys-broker:
+        condition: service_healthy
+
+  # Redis for rate limiting and caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: kage-keys-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # PostgreSQL for production database (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: kage-keys-postgres
+    environment:
+      POSTGRES_DB: kage_keys
+      POSTGRES_USER: kage_keys_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kage_keys_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: kage-keys-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+    depends_on:
+      - kage-keys-broker
+      - kage-keys-mcp
+
+  # Example client application
+  example-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: kage-keys-example-client
+    environment:
+      - KAGE_KEYS_BROKER_URL=http://kage-keys-broker:3000
+      - KAGE_KEYS_AGENT_KEY=${EXAMPLE_AGENT_KEY}
+    networks:
+      - kage-keys-network
+    restart: unless-stopped
+    depends_on:
+      kage-keys-broker:
+        condition: service_healthy
+
+volumes:
+  kage-keys-data:
+    driver: local
+  kage-keys-logs:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  kage-keys-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

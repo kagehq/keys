@@ -15,6 +15,10 @@ export { TenancyManager } from './tenancy';
 export { Dashboard } from './dashboard';
 export { WebDashboard } from './web-dashboard';
 
+// Export Phase 5 Features
+export { PolicyPacks } from './policy-packs';
+export { MCPServer } from './mcp-server';
+
 // Security Hardening Features
 export { SecurityManager, SecurityConfig } from './security';
 
@@ -29,14 +33,15 @@ export async function withAgentKey<T>(
   agentKey: string,
   callback: (token: any) => Promise<T>
 ): Promise<T> {
-  const signer = new HMACSigner();
+  const secret = process.env.HMAC_SECRET || 'default-secret';
+  const signer = new HMACSigner(secret);
   const validation = await signer.verify(agentKey);
   
-  if (!validation.valid || !validation.token) {
+  if (!validation.valid) {
     throw new Error(`Invalid agent key: ${validation.reason || 'Unknown error'}`);
   }
 
-  return await callback(validation.token);
+  return await callback(agentKey);
 }
 
 export async function withBrokeredAPI<T>(
@@ -78,7 +83,8 @@ export async function createToken(
   expiresIn: number = 3600,
   auditDbPath?: string
 ): Promise<string> {
-  const signer = new HMACSigner();
+  const secret = process.env.HMAC_SECRET || 'default-secret';
+  const signer = new HMACSigner(secret);
   const auditLogger = new SQLiteAuditLogger(auditDbPath);
   
   const token = await signer.sign({
@@ -126,4 +132,10 @@ export async function expandScopeBundle(bundleName: string): Promise<string[]> {
   };
 
   return bundles[bundleName] || [];
+}
+
+// Basic token validation
+export async function validateToken(token: string): Promise<any> {
+  const signer = new HMACSigner();
+  return await signer.verify(token);
 }

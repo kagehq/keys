@@ -799,7 +799,7 @@ export class WebDashboard {
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: black;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -859,7 +859,7 @@ export class WebDashboard {
         .login-btn {
             width: 100%;
             padding: 0.75rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 6px;

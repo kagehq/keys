@@ -1,25 +1,154 @@
 {
-  "5fe07afb-842e-4d72-b987-4d785fee6ec2": {
-    "id": "5fe07afb-842e-4d72-b987-4d785fee6ec2",
-    "orgId": "acme-corp",
-    "projectId": "ai-platform",
-    "agentId": "customer-support-ai",
-    "scope": "slack:chat.post",
+  "6790a96a-84ab-4915-8e66-010bc488657e": {
+    "id": "6790a96a-84ab-4915-8e66-010bc488657e",
+    "orgId": "dc534b7d-c8d8-45dc-8062-2ce350159bee",
+    "projectId": "c31652d1-f839-4467-92a0-555b0252dac8",
+    "agentId": "360c22dc-233f-4783-9706-1c22f0856c25",
+    "scope": "aws:sts.assume_role",
     "expiresIn": 3600,
-    "requestedAt": "2025-09-02T23:37:40.251Z",
+    "requestedAt": "2025-09-03T01:54:56.596Z",
     "status": "approved",
     "approvers": [
       {
-        "approverId": "cli-approver",
+        "approverId": "admin",
         "decision": "approve",
-        "reason": "Auto-approved for demo",
-        "timestamp": "2025-09-02T23:37:45.252Z"
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:54:56.596Z"
       }
     ],
-    "metadata": {
-      "userAgent": "Phase3-Demo/1.0",
-      "ipAddress": "127.0.0.1",
-      "context": "Customer support automation"
-    }
+    "metadata": {}
+  },
+  "6b14d200-a326-400c-8d2a-002dc6ebe23c": {
+    "id": "6b14d200-a326-400c-8d2a-002dc6ebe23c",
+    "orgId": "55f81313-125c-4804-8255-40b044b31e1e",
+    "projectId": "822229f0-a0cf-48d3-bbf4-f0a51a54f7e1",
+    "agentId": "2e844e25-6314-4cd6-9dd3-35480c6225f8",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:55:44.233Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:55:44.233Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "b5d7b7b6-f1d8-4add-9504-918ee99c0676": {
+    "id": "b5d7b7b6-f1d8-4add-9504-918ee99c0676",
+    "orgId": "44235ba2-7006-4bf0-8f58-9b50865a8d04",
+    "projectId": "8650dafb-c062-4979-b753-e9b19007059f",
+    "agentId": "6c1758f9-7b90-4445-8d97-6e49bb05dea4",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:56:04.266Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:56:04.266Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "8e865ff6-098b-4641-9e26-ed8fd5202987": {
+    "id": "8e865ff6-098b-4641-9e26-ed8fd5202987",
+    "orgId": "1cc59b39-aa5c-4e56-a15a-af643d474552",
+    "projectId": "4ac9a76b-0cf0-4a7f-937a-758ac7e90c83",
+    "agentId": "c511f371-dab4-49f2-bd2a-2743447baf73",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:56:55.035Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:56:55.035Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "cb1455c4-b12b-496f-8d14-3ec693916cc2": {
+    "id": "cb1455c4-b12b-496f-8d14-3ec693916cc2",
+    "orgId": "d4185fcc-15f2-4d46-bd01-8d0f273f3553",
+    "projectId": "de379fbe-6346-4aa6-82d8-adfd1d5d3a6c",
+    "agentId": "0561e9dd-a800-48e7-90a6-64d66414f933",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:57:14.381Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:57:14.381Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "00bced89-6baf-46b2-86d1-75fc6fc4de05": {
+    "id": "00bced89-6baf-46b2-86d1-75fc6fc4de05",
+    "orgId": "9f7146d2-7ca5-433e-b320-e69e19bcb8d1",
+    "projectId": "fe22a60b-a2b1-4857-afbc-cbbfc2e82820",
+    "agentId": "0a17ee3b-27e2-4ba3-bff1-3658799518e9",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:58:18.972Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:58:18.972Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "e9d387e1-a80b-42bd-a323-4403b2244c4a": {
+    "id": "e9d387e1-a80b-42bd-a323-4403b2244c4a",
+    "orgId": "bfee2f92-9ce3-4fb1-b317-9dc2013ea9c4",
+    "projectId": "5a357224-83d8-45ec-acb7-f433b49c8446",
+    "agentId": "b9dc18cf-728e-43ac-b188-476697e88c4e",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:58:57.504Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:58:57.504Z"
+      }
+    ],
+    "metadata": {}
+  },
+  "2fdb4239-2f8f-42d4-8859-5c2c76df501f": {
+    "id": "2fdb4239-2f8f-42d4-8859-5c2c76df501f",
+    "orgId": "7360dfa5-5dee-42f6-85f0-463029c5e400",
+    "projectId": "d53c0d05-d494-4389-bff8-b408eb6e5c60",
+    "agentId": "b50fa36e-b4cf-4ed4-bffd-9ee0b5a1eca0",
+    "scope": "aws:sts.assume_role",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-03T01:59:29.426Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "admin",
+        "decision": "approve",
+        "reason": "Approved for demo",
+        "timestamp": "2025-09-03T01:59:29.426Z"
+      }
+    ],
+    "metadata": {}
   }
 }

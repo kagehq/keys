@@ -91,3 +91,12 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Demo and runtime files
+*-demo.db
+demo-*.db
+*.db
+approval-data/
+tenancy-data/
+cookies.txt
+kage-keys.log
