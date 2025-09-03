@@ -1,6 +1,6 @@
 {
   "name": "@kagehq/keys",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Enterprise permissions layer for AI agents - Scoped, expiring keys with approval workflows, multi-tenancy, and real-time dashboard",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
