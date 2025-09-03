@@ -1,0 +1,29 @@
+{
+  "49b5c6af-6fa6-4f37-9d08-36528a8ec44a": {
+    "id": "49b5c6af-6fa6-4f37-9d08-36528a8ec44a",
+    "projectId": "0c12943c-2b0a-4913-8a95-9e7978873176",
+    "name": "Customer Support AI",
+    "description": "AI agent for customer support",
+    "type": "ai-assistant",
+    "status": "active",
+    "createdAt": "2025-09-02T23:37:40.251Z",
+    "metadata": {},
+    "scopeBundles": [
+      "ai_assistant",
+      "team_collaborator"
+    ]
+  },
+  "5cf2ba59-9670-4f81-8bbe-36d5bfa65e84": {
+    "id": "5cf2ba59-9670-4f81-8bbe-36d5bfa65e84",
+    "projectId": "0c12943c-2b0a-4913-8a95-9e7978873176",
+    "name": "Code Review Bot",
+    "description": "AI agent for automated code reviews",
+    "type": "code-reviewer",
+    "status": "active",
+    "createdAt": "2025-09-02T23:37:40.251Z",
+    "metadata": {},
+    "scopeBundles": [
+      "code_reviewer"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "0c12943c-2b0a-4913-8a95-9e7978873176": {
+    "id": "0c12943c-2b0a-4913-8a95-9e7978873176",
+    "orgId": "04dbe5cb-7f1b-4cc0-8c62-a024b85618fe",
+    "name": "AI Assistant Platform",
+    "slug": "ai-platform",
+    "description": "Platform for managing AI assistants with scoped access",
+    "createdAt": "2025-09-02T23:37:40.251Z",
+    "settings": {
+      "allowedScopes": [],
+      "blockedScopes": [],
+      "requireApproval": true,
+      "approvalWorkflow": {
+        "id": "3cf27977-a65d-459c-8c0b-ab381dd47cd7",
+        "name": "Default CLI Approval",
+        "type": "cli",
+        "config": {
+          "promptMessage": "Approve this request? (y/n)",
+          "timeout": 300,
+          "defaultAction": "deny"
+        },
+        "approvers": [],
+        "autoApproveScopes": [],
+        "requireAllApprovers": false
+      }
+    }
+  }
+}

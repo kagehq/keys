@@ -65,6 +65,7 @@ export interface AuditLogEntry {
   duration: number; // milliseconds
   status: 'success' | 'error' | 'rate_limited' | 'unauthorized';
   route: string;
+  method?: string;
   providerLatency?: number;
   jti: string;
   tokenHash: string; // hash(token) for security

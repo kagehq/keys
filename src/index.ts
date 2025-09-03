@@ -16,6 +16,13 @@ export { SQLiteAuditLogger } from './audit';
 export { ScopeParser, ScopeCatalog, SCOPE_BUNDLES } from './scope';
 export * from './types';
 
+// Export Phase 3 Enterprise Features
+export * from './enterprise-types';
+export { ApprovalManager } from './approval';
+export { TenancyManager } from './tenancy';
+export { Dashboard } from './dashboard';
+export { WebDashboard } from './web-dashboard';
+
 // Import types for convenience functions
 import { AgentKeyBroker } from './broker';
 import { HMACSigner } from './signer';

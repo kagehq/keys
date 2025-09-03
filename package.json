@@ -1,6 +1,6 @@
 {
   "name": "@kagehq/keys",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Scoped, expiring keys for AI agents with HTTP broker and audit logging.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
     "test": "node examples/demo.js",
     "start": "node dist/cli.js start",
     "cli": "node dist/cli.js",
-    "version": "0.3.2"
+    "version": "0.4.0"
   },
   "keywords": [
     "agent",

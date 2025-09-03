@@ -1,0 +1,38 @@
+{
+  "e4dd7a59-513b-4724-aaf5-465fc4ca1d15": {
+    "id": "e4dd7a59-513b-4724-aaf5-465fc4ca1d15",
+    "orgId": "04dbe5cb-7f1b-4cc0-8c62-a024b85618fe",
+    "name": "Developer Access Policy",
+    "description": "Policy for developers to manage AI agents",
+    "rules": [
+      {
+        "id": "1",
+        "effect": "allow",
+        "resources": [
+          "ai_assistant:*",
+          "code_reviewer:*"
+        ],
+        "actions": [
+          "create",
+          "read",
+          "update"
+        ],
+        "conditions": {
+          "timeRestrictions": {
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "daysOfWeek": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        }
+      }
+    ],
+    "createdAt": "2025-09-02T23:37:40.251Z",
+    "isActive": true
+  }
+}

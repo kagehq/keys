@@ -1,0 +1,26 @@
+{
+  "26a800cb-a8fd-47c3-9263-d346028b25b0": {
+    "id": "26a800cb-a8fd-47c3-9263-d346028b25b0",
+    "name": "Demo Corp",
+    "slug": "demo-corp",
+    "createdAt": "2025-09-02T23:37:40.249Z",
+    "settings": {
+      "requireApproval": true,
+      "approvalChannels": [],
+      "defaultTokenExpiry": 3600,
+      "maxAgentsPerProject": 100
+    }
+  },
+  "04dbe5cb-7f1b-4cc0-8c62-a024b85618fe": {
+    "id": "04dbe5cb-7f1b-4cc0-8c62-a024b85618fe",
+    "name": "Acme Corp",
+    "slug": "acme-corp",
+    "createdAt": "2025-09-02T23:37:40.250Z",
+    "settings": {
+      "requireApproval": true,
+      "approvalChannels": [],
+      "defaultTokenExpiry": 3600,
+      "maxAgentsPerProject": 100
+    }
+  }
+}

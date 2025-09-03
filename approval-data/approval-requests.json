@@ -1,0 +1,25 @@
+{
+  "5fe07afb-842e-4d72-b987-4d785fee6ec2": {
+    "id": "5fe07afb-842e-4d72-b987-4d785fee6ec2",
+    "orgId": "acme-corp",
+    "projectId": "ai-platform",
+    "agentId": "customer-support-ai",
+    "scope": "slack:chat.post",
+    "expiresIn": 3600,
+    "requestedAt": "2025-09-02T23:37:40.251Z",
+    "status": "approved",
+    "approvers": [
+      {
+        "approverId": "cli-approver",
+        "decision": "approve",
+        "reason": "Auto-approved for demo",
+        "timestamp": "2025-09-02T23:37:45.252Z"
+      }
+    ],
+    "metadata": {
+      "userAgent": "Phase3-Demo/1.0",
+      "ipAddress": "127.0.0.1",
+      "context": "Customer support automation"
+    }
+  }
+}
