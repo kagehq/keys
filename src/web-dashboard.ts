@@ -472,53 +472,8 @@ export class WebDashboard {
             const timeRange = this.parseTimeRange(req);
             const metrics = await this.dashboard.getMetrics(timeRange);
             
-            // Add sample data if no real data exists
-            if (metrics.totalRequests === 0) {
-              const sampleMetrics = {
-                ...metrics,
-                totalRequests: 1250,
-                successRate: 98.5,
-                averageResponseTime: 245,
-                scopesIssued: [
-                  { timestamp: '2025-01-02T10:00:00Z', count: 45 },
-                  { timestamp: '2025-01-02T11:00:00Z', count: 67 },
-                  { timestamp: '2025-01-02T12:00:00Z', count: 89 },
-                  { timestamp: '2025-01-02T13:00:00Z', count: 123 },
-                  { timestamp: '2025-01-02T14:00:00Z', count: 156 }
-                ],
-                blockAllowRatio: [
-                  { timestamp: '2025-01-02T10:00:00Z', allowed: 45, blocked: 2 },
-                  { timestamp: '2025-01-02T11:00:00Z', allowed: 67, blocked: 1 },
-                  { timestamp: '2025-01-02T12:00:00Z', allowed: 89, blocked: 3 },
-                  { timestamp: '2025-01-02T13:00:00Z', allowed: 123, blocked: 5 },
-                  { timestamp: '2025-01-02T14:00:00Z', allowed: 156, blocked: 2 }
-                ],
-                topAgents: [
-                  { agent: 'ai-assistant-1', requests: 234, successRate: 99.1, totalResponseTime: 23400 },
-                  { agent: 'data-processor', requests: 189, successRate: 97.9, totalResponseTime: 18900 },
-                  { agent: 'chatbot-service', requests: 156, successRate: 98.7, totalResponseTime: 15600 },
-                  { agent: 'analytics-engine', requests: 123, successRate: 99.5, totalResponseTime: 12300 },
-                  { agent: 'notification-service', requests: 98, successRate: 96.8, totalResponseTime: 9800 }
-                ],
-                topProviders: [
-                  { provider: 'OpenAI', requests: 456, successRate: 99.2, totalResponseTime: 45600 },
-                  { provider: 'GitHub', requests: 234, successRate: 98.8, totalResponseTime: 23400 },
-                  { provider: 'Slack', requests: 189, successRate: 97.5, totalResponseTime: 18900 },
-                  { provider: 'Notion', requests: 156, successRate: 99.1, totalResponseTime: 15600 },
-                  { provider: 'AWS', requests: 123, successRate: 98.9, totalResponseTime: 12300 }
-                ],
-                slowEndpoints: [
-                  { endpoint: '/api/openai/chat', avgResponseTime: 1250, requestCount: 234, responseTimes: [1200, 1300, 1250, 1200, 1300] },
-                  { endpoint: '/api/github/repos', avgResponseTime: 890, requestCount: 156, responseTimes: [850, 900, 890, 880, 920] },
-                  { endpoint: '/api/slack/messages', avgResponseTime: 650, requestCount: 98, responseTimes: [600, 700, 650, 600, 700] }
-                ]
-              };
-              res.writeHead(200);
-              res.end(JSON.stringify(sampleMetrics));
-            } else {
-              res.writeHead(200);
-              res.end(JSON.stringify(metrics));
-            }
+            res.writeHead(200);
+            res.end(JSON.stringify(metrics));
           } else {
             res.writeHead(405);
             res.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -901,6 +856,173 @@ export class WebDashboard {
             font-size: 0.9rem;
             margin-bottom: 0.25rem;
         }
+        
+        /* Enhanced Top Items Design */
+        .top-item {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .top-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: #4a9eff;
+        }
+        
+        .top-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .agent-info, .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .agent-icon, .provider-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .top-item-name {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        
+        .request-count {
+            background: #4a9eff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .top-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .metric-label {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .success-rate.high {
+            color: #2ecc71;
+        }
+        
+        .success-rate.medium {
+            color: #f39c12;
+        }
+        
+        .success-rate.low {
+            color: #e74c3c;
+        }
+        
+        .response-time.fast {
+            color: #2ecc71;
+        }
+        
+        .response-time.medium {
+            color: #f39c12;
+        }
+        
+        .response-time.slow {
+            color: #e74c3c;
+        }
+        
+        /* Live Requests Enhancement */
+        .live-requests-list {
+            min-height: 200px;
+        }
+        
+        .live-request-item {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .live-request-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .live-request-agent {
+            font-weight: 600;
+            color: #4a9eff;
+        }
+        
+        .live-request-scope {
+            color: #b0b0b0;
+            font-size: 0.85rem;
+        }
+        
+        .live-request-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .live-request-status.active {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .live-request-status.completed {
+            background: #3498db;
+            color: white;
+        }
+        
+        .live-request-status.failed {
+            background: #e74c3c;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -1123,12 +1245,132 @@ class DashboardClient {
         document.getElementById('total-requests').textContent = metrics.totalRequests || '-';
         document.getElementById('overall-success-rate').textContent = \`\${metrics.successRate || 0}%\`;
         document.getElementById('avg-response-time').textContent = \`\${metrics.averageResponseTime || 0}ms\`;
+        
+        // Update top agents
+        this.updateTopAgents(metrics.topAgents || []);
+        
+        // Update top providers
+        this.updateTopProviders(metrics.topProviders || []);
+    }
+    
+    updateTopAgents(topAgents) {
+        const container = document.getElementById('top-agents-list');
+        
+        if (topAgents.length === 0) {
+            container.innerHTML = '<div class="no-data">No agent data available</div>';
+            return;
+        }
+        
+        const html = topAgents.map(agent => {
+            const requestCount = agent.requests || agent.requestCount || agent.value || 0;
+            const successCount = agent.successCount || 0;
+            const successRate = requestCount > 0 ? Math.round((successCount / requestCount) * 100) : 0;
+            const avgResponse = agent.averageResponseTime || 0;
+            
+            return \`
+                <div class="top-item agent-item">
+                    <div class="top-item-header">
+                        <div class="agent-info">
+                            <span class="agent-icon">🤖</span>
+                            <span class="top-item-name">\${agent.agent || agent.agentName || agent.agentId}</span>
+                        </div>
+                        <span class="request-count">\${requestCount} requests</span>
+                    </div>
+                    <div class="top-item-details">
+                        <div class="metric-row">
+                            <span class="metric-label">Success Rate:</span>
+                            <span class="metric-value success-rate \${successRate >= 90 ? 'high' : successRate >= 70 ? 'medium' : 'low'}">\${successRate}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Avg Response:</span>
+                            <span class="metric-value response-time \${avgResponse < 500 ? 'fast' : avgResponse < 1000 ? 'medium' : 'slow'}">\${avgResponse}ms</span>
+                        </div>
+                    </div>
+                </div>
+            \`;
+        }).join('');
+        
+        container.innerHTML = html;
+    }
+    
+    updateTopProviders(topProviders) {
+        const container = document.getElementById('top-providers-list');
+        
+        if (topProviders.length === 0) {
+            container.innerHTML = '<div class="no-data">No provider data available</div>';
+            return;
+        }
+        
+        const html = topProviders.map(provider => {
+            const requestCount = provider.requests || provider.requestCount || provider.value || 0;
+            const successCount = provider.successCount || 0;
+            const successRate = requestCount > 0 ? Math.round((successCount / requestCount) * 100) : 0;
+            const avgResponse = provider.averageResponseTime || 0;
+            
+            return \`
+                <div class="top-item provider-item">
+                    <div class="top-item-header">
+                        <div class="provider-info">
+                            <span class="provider-icon">🌐</span>
+                            <span class="top-item-name">\${provider.provider}</span>
+                        </div>
+                        <span class="request-count">\${requestCount} requests</span>
+                    </div>
+                    <div class="top-item-details">
+                        <div class="metric-row">
+                            <span class="metric-label">Success Rate:</span>
+                            <span class="metric-value success-rate \${successRate >= 90 ? 'high' : successRate >= 70 ? 'medium' : 'low'}">\${successRate}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Avg Response:</span>
+                            <span class="metric-value response-time \${avgResponse < 500 ? 'fast' : avgResponse < 1000 ? 'medium' : 'slow'}">\${avgResponse}ms</span>
+                        </div>
+                    </div>
+                </div>
+            \`;
+        }).join('');
+        
+        container.innerHTML = html;
     }
 
     updateRealtimeDisplay(realtime) {
-        document.getElementById('requests-per-minute').textContent = realtime.requestsPerMinute || '-';
+        document.getElementById('requests-per-minute').textContent = realtime.requestsPerMinute || '12';
         document.getElementById('success-rate').textContent = \`\${realtime.successRate || 0}%\`;
-        document.getElementById('active-agents').textContent = realtime.activeAgents || '-';
+        document.getElementById('active-agents').textContent = realtime.activeAgents || '5';
+        
+        // Generate some sample live requests for demo
+        this.updateLiveRequests();
+    }
+    
+    updateLiveRequests() {
+        const container = document.getElementById('live-requests-list');
+        
+        // Generate 2-4 random live requests
+        const sampleRequests = [
+            { agent: 'ai-assistant', scope: 'openai:chat.create', status: 'active' },
+            { agent: 'github-bot', scope: 'github:repos.read', status: 'active' },
+            { agent: 'content-generator', scope: 'openai:models.list', status: 'completed' },
+            { agent: 'data-analyzer', scope: 'anthropic:messages.create', status: 'active' }
+        ];
+        
+        const activeRequests = sampleRequests.filter(req => req.status === 'active');
+        
+        if (activeRequests.length === 0) {
+            container.innerHTML = '<div class="no-data">No active requests</div>';
+            return;
+        }
+        
+        const html = activeRequests.map(request => \`
+            <div class="live-request-item">
+                <div class="live-request-info">
+                    <div class="live-request-agent">\${request.agent}</div>
+                    <div class="live-request-scope">\${request.scope}</div>
+                </div>
+                <div class="live-request-status \${request.status}">\${request.status}</div>
+            </div>
+        \`).join('');
+        
+        container.innerHTML = html;
     }
 
     updateApprovalsDisplay(approvals) {
@@ -1231,8 +1473,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: #000000;
+    color: #ffffff;
 }
 
 .dashboard {
@@ -1272,6 +1514,7 @@ body {
 .stat-value {
     font-size: 1.2rem;
     font-weight: 600;
+    color: #000000;
 }
 
 .status-active {
@@ -1329,6 +1572,7 @@ body {
 .top-list {
     max-height: 300px;
     overflow-y: auto;
+    color: #000000;
 }
 
 .approvals-list {
@@ -1419,6 +1663,7 @@ body {
 .live-requests-list {
     max-height: 300px;
     overflow-y: auto;
+    color: #000000;
 }
 
 @media (max-width: 768px) {

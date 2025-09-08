@@ -7,7 +7,7 @@ async function startDashboard() {
     console.log('🚀 Starting Kage Keys Web Dashboard...');
     
     // Create required dependencies
-    const auditLogger = new SQLiteAuditLogger('./dashboard-audit.db');
+    const auditLogger = new SQLiteAuditLogger('audit.db');
     const dashboard = new Dashboard({ auditLogger });
     const approvalManager = new ApprovalManager();
     const tenancyManager = new TenancyManager();

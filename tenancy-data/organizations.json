@@ -12,5 +12,19 @@
     },
     "createdAt": "2025-09-08T02:11:39.665Z",
     "updatedAt": "2025-09-08T02:11:39.666Z"
+  },
+  "66daa706-daae-49ad-ba0e-a93e025b95c3": {
+    "id": "66daa706-daae-49ad-ba0e-a93e025b95c3",
+    "name": "Demo Corp",
+    "slug": "demo-corp",
+    "description": "",
+    "settings": {
+      "requireApproval": false,
+      "approvalChannels": [],
+      "defaultTokenExpiry": 3600,
+      "maxAgentsPerProject": 10
+    },
+    "createdAt": "2025-09-08T03:05:12.972Z",
+    "updatedAt": "2025-09-08T03:05:12.972Z"
   }
 }
