@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+logs
+*.log
+.env
+.env.local
+.env.production
+.git
+.gitignore
+README.md
+Dockerfile
+docker-compose.yml
+.helm

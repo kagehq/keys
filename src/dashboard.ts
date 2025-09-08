@@ -115,7 +115,16 @@ export class Dashboard extends EventEmitter {
   /**
    * Get comprehensive dashboard metrics
    */
-  async getMetrics(timeRange: { start: string; end: string }): Promise<DashboardMetrics> {
+  async getMetrics(timeRange?: { start: string; end: string }): Promise<DashboardMetrics> {
+    // Default to last 24 hours if no time range provided
+    if (!timeRange) {
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      timeRange = {
+        start: oneDayAgo.toISOString(),
+        end: now.toISOString()
+      };
+    }
     // Check if auditLogger is available
     if (!this.auditLogger) {
       return {
@@ -223,10 +232,13 @@ export class Dashboard extends EventEmitter {
         successCount: 0,
         errorCount: 0,
         averageResponseTime: 0,
-        totalResponseTime: 0
+        totalResponseTime: 0,
+        agent: log.agent,
+        value: 0
       };
 
       existing.requestCount++;
+      existing.value = existing.requestCount; // Update value for test compatibility
       if (log.status === 'success') {
         existing.successCount++;
       } else {
@@ -251,7 +263,9 @@ export class Dashboard extends EventEmitter {
         successCount: agent.successCount,
         errorCount: agent.errorCount,
         averageResponseTime: Math.round(agent.averageResponseTime),
-        totalResponseTime: agent.totalResponseTime
+        totalResponseTime: agent.totalResponseTime,
+        agent: agent.agent,
+        value: agent.value
       }));
   }
 
@@ -279,10 +293,12 @@ export class Dashboard extends EventEmitter {
         errorCount: 0,
         averageResponseTime: 0,
         totalResponseTime: 0,
-        totalLatency: 0
+        totalLatency: 0,
+        value: 0
       };
 
       existing.requestCount++;
+      existing.value = existing.requestCount; // Update value for test compatibility
       if (log.status === 'success') {
         existing.successCount++;
       } else {
@@ -311,7 +327,8 @@ export class Dashboard extends EventEmitter {
         errorCount: provider.errorCount,
         averageResponseTime: Math.round(provider.averageResponseTime),
         totalResponseTime: provider.totalResponseTime,
-        totalLatency: provider.totalLatency
+        totalLatency: provider.totalLatency,
+        value: provider.value
       }));
   }
 
@@ -374,6 +391,8 @@ export class Dashboard extends EventEmitter {
     totalRequests: number;
     successRate: number;
     averageResponseTime: number;
+    successfulRequests: number;
+    failedRequests: number;
   }> {
     const logs = await this.auditLogger.queryLogs({
       startTime: timeRange.start,
@@ -383,6 +402,7 @@ export class Dashboard extends EventEmitter {
 
     const totalRequests = logs.length;
     const successCount = logs.filter(log => log.status === 'success').length;
+    const failedCount = logs.filter(log => log.status === 'error').length;
     const successRate = totalRequests > 0 ? (successCount / totalRequests) * 100 : 0;
     
     const responseTimes = logs
@@ -396,7 +416,9 @@ export class Dashboard extends EventEmitter {
     return {
       totalRequests,
       successRate: Math.round(successRate * 100) / 100,
-      averageResponseTime: Math.round(averageResponseTime)
+      averageResponseTime: Math.round(averageResponseTime),
+      successfulRequests: successCount,
+      failedRequests: failedCount
     };
   }
 
@@ -569,5 +591,59 @@ export class Dashboard extends EventEmitter {
     });
 
     return lines.join('\n');
+  }
+
+  // Additional public methods for compatibility with tests
+  async getTimeSeriesData(metric: string, timeRange: { start: string; end: string }): Promise<TimeSeriesPoint[]> {
+    switch (metric) {
+      case 'requests':
+        return this.getScopesIssuedMetrics(timeRange);
+      case 'responseTime':
+        return this.getBlockAllowRatioMetrics(timeRange);
+      case 'errorRate':
+        return this.getBlockAllowRatioMetrics(timeRange);
+      default:
+        return [];
+    }
+  }
+
+  async getTopAgents(_metric: string, limit: number = 10): Promise<TopAgent[]> {
+    const timeRange = {
+      start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date().toISOString()
+    };
+    const agents = await this.getTopAgentsMetrics(timeRange);
+    return agents.slice(0, limit);
+  }
+
+  async getTopProviders(_metric: string, limit: number = 10): Promise<TopProvider[]> {
+    const timeRange = {
+      start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date().toISOString()
+    };
+    const providers = await this.getTopProvidersMetrics(timeRange);
+    return providers.slice(0, limit);
+  }
+
+  async getSlowEndpoints(limit: number = 10): Promise<SlowEndpoint[]> {
+    const timeRange = {
+      start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date().toISOString()
+    };
+    const endpoints = await this.getSlowEndpointsMetrics(timeRange);
+    return endpoints.slice(0, limit);
+  }
+
+  stop(): void {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+    this.stopLiveStreaming();
+  }
+
+  stopLiveStreaming(): void {
+    this.liveRequests.clear();
+    this.removeAllListeners('liveRequest');
   }
 }

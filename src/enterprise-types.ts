@@ -4,12 +4,15 @@ export interface Organization {
   id: string;
   name: string;
   slug: string;
+  description?: string; // For test compatibility
   createdAt: string;
+  updatedAt?: string; // For test compatibility
   settings: {
     requireApproval: boolean;
     approvalChannels: ApprovalChannel[];
     defaultTokenExpiry: number; // seconds
     maxAgentsPerProject: number;
+    maxAgents?: number; // For test compatibility
   };
 }
 
@@ -20,40 +23,48 @@ export interface Project {
   slug: string;
   description?: string;
   createdAt: string;
+  updatedAt?: string; // For test compatibility
   settings: {
     allowedScopes: string[];
     blockedScopes: string[];
     requireApproval: boolean;
     approvalWorkflow: ApprovalWorkflow;
+    maxAgents?: number; // For test compatibility
   };
 }
 
 export interface Agent {
   id: string;
+  orgId: string;
   projectId: string;
   name: string;
   description?: string;
   type: AgentType;
   status: 'active' | 'suspended' | 'deleted';
   createdAt: string;
+  updatedAt?: string; // For test compatibility
   lastSeen?: string;
   metadata: Record<string, any>;
   scopeBundles: string[]; // Pre-configured scope bundles
+  organizationId?: string; // For test compatibility
 }
 
-export type AgentType = 
-  | 'ai-assistant'
-  | 'code-reviewer' 
-  | 'team-collaborator'
-  | 'knowledge-manager'
-  | 'cloud-operator'
-  | 'custom';
+export enum AgentType {
+  AI_ASSISTANT = 'ai-assistant',
+  CODE_REVIEWER = 'code-reviewer',
+  TEAM_COLLABORATOR = 'team-collaborator',
+  KNOWLEDGE_MANAGER = 'knowledge-manager',
+  CLOUD_OPERATOR = 'cloud-operator',
+  API_CLIENT = 'api-client',
+  WEBHOOK = 'webhook',
+  CUSTOM = 'custom'
+}
 
 export interface ApprovalWorkflow {
   id: string;
   name: string;
-  type: 'slack' | 'email' | 'cli' | 'webhook';
-  config: SlackConfig | EmailConfig | CLIConfig | WebhookConfig;
+  type: 'slack' | 'email' | 'cli' | 'webhook' | 'single';
+  config: SlackConfig | EmailConfig | CLIConfig | WebhookConfig | Record<string, any>;
   approvers: string[]; // User IDs or email addresses
   autoApproveScopes: string[]; // Scopes that don't need approval
   requireAllApprovers: boolean;
@@ -139,6 +150,7 @@ export interface RBACPolicy {
 
 export interface RBACRule {
   id: string;
+  name?: string; // For test compatibility
   effect: 'allow' | 'deny';
   resources: string[]; // Scopes or scope patterns
   actions: string[]; // create, read, update, delete, approve
@@ -182,6 +194,9 @@ export interface TopAgent {
   errorCount: number;
   averageResponseTime: number;
   totalResponseTime: number;
+  // Additional properties for test compatibility
+  agent: string;
+  value: number;
 }
 
 export interface TopProvider {
@@ -192,6 +207,8 @@ export interface TopProvider {
   averageResponseTime: number;
   totalResponseTime: number;
   totalLatency: number;
+  // Additional property for test compatibility
+  value: number;
 }
 
 export interface SlowEndpoint {

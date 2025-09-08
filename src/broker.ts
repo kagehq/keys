@@ -137,7 +137,12 @@ export class AgentKeyBroker {
   /**
    * Start the broker server
    */
-  async start(port: number = this.options.port || 3000): Promise<void> {
+  async start(port: number = this.options.port || 3000, options?: Partial<BrokerOptions>): Promise<void> {
+    // Merge options if provided
+    if (options) {
+      this.options = { ...this.options, ...options };
+    }
+    
     return new Promise((resolve, reject) => {
       this.server.listen(port, () => {
         const protocol = this.options.enableHTTPS ? 'https' : 'http';
@@ -475,6 +480,26 @@ export class AgentKeyBroker {
   private hashToken(token: string): string {
     // Simple hash for demo - in production use crypto.createHash('sha256')
     return Buffer.from(token).toString('base64').substr(0, 16);
+  }
+
+  // Additional methods for compatibility with tests
+  registerProvider(provider: { name: string; baseUrl: string; scopes: string[] }): void {
+    // This would typically register a provider in a scope catalog
+    // For now, we'll just log it
+    console.log(`Registered provider: ${provider.name} at ${provider.baseUrl}`);
+  }
+
+  // Make stop method return a promise for better async handling
+  async stopAsync(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.server) {
+        this.server.close(() => {
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 }
 

@@ -100,3 +100,13 @@ approval-data/
 tenancy-data/
 cookies.txt
 kage-keys.log
+
+# Test files and coverage
+test-*.db
+test-*-audit.db
+test-*-data/
+test-*-project/
+test-*.json
+coverage/
+.nyc_output/
+test-results/

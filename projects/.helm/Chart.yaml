@@ -1,0 +1,17 @@
+apiVersion: v2
+name: kage-keys
+description: Agent Key Broker for AI agents
+type: application
+version: 0.4.1
+appVersion: "0.4.1"
+keywords:
+  - ai
+  - agents
+  - authentication
+  - security
+home: https://github.com/kagehq/keys
+sources:
+  - https://github.com/kagehq/keys
+maintainers:
+  - name: Kage HQ
+    email: team@kagehq.com

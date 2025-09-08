@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kage-keys.fullname" . }}
+  labels:
+    {{- include "kage-keys.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "kage-keys.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kage-keys.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "kage-keys.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: broker
+              containerPort: {{ .Values.config.broker.port }}
+              protocol: TCP
+            - name: dashboard
+              containerPort: {{ .Values.service.dashboardPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: broker
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: broker
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

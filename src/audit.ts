@@ -413,4 +413,68 @@ export class SQLiteAuditLogger {
   getDatabasePath(): string {
     return this.dbPath;
   }
+
+  // Additional methods for compatibility with tests
+  async getLogs(options: {
+    agent?: string;
+    scope?: string;
+    status?: string;
+    startTime?: string;
+    endTime?: string;
+    limit?: number;
+  } = {}): Promise<AuditLogEntry[]> {
+    return this.queryLogs(options);
+  }
+
+  async getRateLimitLogs(options: {
+    agent?: string;
+    scope?: string;
+    startTime?: string;
+    endTime?: string;
+    limit?: number;
+  } = {}): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      let query = 'SELECT * FROM rate_limit_logs WHERE 1=1';
+      const params: any[] = [];
+
+      if (options.agent) {
+        query += ' AND agent = ?';
+        params.push(options.agent);
+      }
+
+      if (options.scope) {
+        query += ' AND scope = ?';
+        params.push(options.scope);
+      }
+
+      if (options.startTime) {
+        query += ' AND timestamp >= ?';
+        params.push(options.startTime);
+      }
+
+      if (options.endTime) {
+        query += ' AND timestamp <= ?';
+        params.push(options.endTime);
+      }
+
+      query += ' ORDER BY timestamp DESC';
+
+      if (options.limit) {
+        query += ' LIMIT ?';
+        params.push(options.limit);
+      }
+
+      this.db.all(query, params, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows || []);
+        }
+      });
+    });
+  }
+
+  async cleanup(olderThanDays: number = 30): Promise<number> {
+    return this.cleanupOldLogs(olderThanDays);
+  }
 }

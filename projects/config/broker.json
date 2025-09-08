@@ -1,0 +1,16 @@
+{
+  "port": 3000,
+  "enableHTTPS": false,
+  "enableMTLS": false,
+  "cors": {
+    "origins": [
+      "http://localhost:3000",
+      "http://localhost:8080"
+    ],
+    "credentials": true
+  },
+  "rateLimit": {
+    "windowMs": 900000,
+    "maxRequests": 100
+  }
+}

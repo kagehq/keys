@@ -698,4 +698,31 @@ main().catch(console.error);
     
     return envVars.join('\n');
   }
+
+  // Additional methods for compatibility with tests
+  static getPackScopes(packName: string): string[] {
+    const pack = this.getPack(packName);
+    return pack ? pack.scopes : [];
+  }
+
+  static getPackRoutes(packName: string): PolicyRoute[] {
+    const pack = this.getPack(packName);
+    return pack ? pack.routes : [];
+  }
+
+  static getPackDependencies(packName: string): string[] {
+    const pack = this.getPack(packName);
+    return pack ? pack.dependencies : [];
+  }
+
+  static searchPacks(query: string): PolicyPack[] {
+    const allPacks = this.getAllPacks();
+    const lowerQuery = query.toLowerCase();
+    
+    return allPacks.filter(pack => 
+      pack.name.toLowerCase().includes(lowerQuery) ||
+      pack.description.toLowerCase().includes(lowerQuery) ||
+      pack.scopes.some(scope => scope.toLowerCase().includes(lowerQuery))
+    );
+  }
 }

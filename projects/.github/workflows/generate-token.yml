@@ -1,0 +1,67 @@
+name: Generate One-Time Agent Token
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'Agent name'
+        required: true
+        default: 'github-actions'
+      scope:
+        description: 'Scope for the agent'
+        required: true
+        default: 'github:repos.read,github:issues.read'
+      duration:
+        description: 'Token duration in seconds'
+        required: true
+        default: '3600'
+
+jobs:
+  generate-token:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Kage Keys
+      run: npm install @kagehq/keys
+    
+    - name: Generate one-time agent token
+      run: |
+        node -e "
+        const { createToken } = require('@kagehq/keys');
+        
+        async function generateToken() {
+          const token = await createToken(
+            '${{ github.event.inputs.agent_name }}',
+            '${{ github.event.inputs.scope }}',
+            parseInt('${{ github.event.inputs.duration }}'),
+            './audit.db'
+          );
+          
+          console.log('Generated one-time agent token:');
+          console.log('Agent:', '${{ github.event.inputs.agent_name }}');
+          console.log('Scope:', '${{ github.event.inputs.scope }}');
+          console.log('Duration:', '${{ github.event.inputs.duration }}s');
+          console.log('Token:', token);
+          
+          # Set output for use in other steps
+          console.log('::set-output name=agent-token::' + token);
+        }
+        
+        generateToken().catch(console.error);
+        "
+      id: token-generation
+    
+    - name: Use token for authenticated operations
+      run: |
+        echo "Using agent token for authenticated operations..."
+        # Example: Use the token to make authenticated API calls
+        # curl -H "X-Agent-Key: ${{ steps.token-generation.outputs.agent-token }}" \
+        #      https://api.github.com/user/repos

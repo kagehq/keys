@@ -16,6 +16,10 @@ export interface WebDashboardOptions {
   approvalManager: ApprovalManager;
   tenancyManager: TenancyManager;
   auditLogger: SQLiteAuditLogger;
+  cors?: {
+    origins: string[];
+    credentials: boolean;
+  };
   security?: {
     enableCSRF?: boolean;
     csrfSecret?: string;
@@ -668,7 +672,6 @@ export class WebDashboard {
             const project = await this.tenancyManager.createProject(
               body.orgId,
               body.name,
-              body.slug,
               body.description
             );
             res.writeHead(201);
@@ -978,13 +981,13 @@ export class WebDashboard {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kage Keys Dashboard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="/dashboard.css">
 </head>
 <body>
     <div class="dashboard">
         <header class="dashboard-header">
-            <h1>🔐 Kage Keys Dashboard</h1>
+            <h1>🔐 Kage Keys</h1>
             <div class="header-stats">
                 <div class="stat">
                     <span class="stat-label">Status</span>

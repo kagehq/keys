@@ -418,7 +418,7 @@ program
     try {
       console.log('🚀 Initializing new Kage Keys project...\n');
       
-      const projectDir = './kage-keys-project';
+      const projectDir = './projects';
       
       // Create project directory
       if (!fs.existsSync(projectDir)) {

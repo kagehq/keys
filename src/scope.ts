@@ -346,6 +346,28 @@ export class ScopeCatalog {
 
     this.CATALOGS.set('aws', awsConfig);
   }
+
+  // Additional method for compatibility with tests
+  static registerProvider(provider: { name: string; baseUrl: string; scopes: string[] }): void {
+    const providerConfig: ProviderConfig = {
+      name: provider.name,
+      baseUrl: provider.baseUrl,
+      apiKey: '',
+      routes: provider.scopes.map(scope => ({
+        scope,
+        method: 'GET',
+        url: `${provider.baseUrl}/api`,
+        headers: {},
+        rateLimit: { requests: 100, window: 60 }
+      }))
+    };
+    this.addCatalog(providerConfig);
+  }
+
+  // Instance method for test compatibility
+  registerProvider(provider: { name: string; baseUrl: string; scopes: string[] }): void {
+    ScopeCatalog.registerProvider(provider);
+  }
 }
 
 // Predefined scope bundles for common use cases

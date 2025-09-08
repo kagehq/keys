@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  kage-keys:
+    build: .
+    ports:
+      - "3000:3000"  # Broker
+      - "8080:8080"  # Dashboard
+    environment:
+      - NODE_ENV=production
+      - BROKER_PORT=3000
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./certs:/app/certs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: PostgreSQL for production audit logs
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: kagekeys
+      POSTGRES_USER: kagekeys
+      POSTGRES_PASSWORD: your-password-here
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,110 +1,16 @@
 {
-  "587bb203-d4c1-46bb-befd-3f19154b1598": {
-    "id": "587bb203-d4c1-46bb-befd-3f19154b1598",
+  "8e63657d-63ce-44f2-b2c7-9e01f13cde84": {
+    "id": "8e63657d-63ce-44f2-b2c7-9e01f13cde84",
     "name": "Demo Corp",
     "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:36:14.589Z",
+    "description": "",
     "settings": {
-      "requireApproval": true,
+      "requireApproval": false,
       "approvalChannels": [],
       "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "dc534b7d-c8d8-45dc-8062-2ce350159bee": {
-    "id": "dc534b7d-c8d8-45dc-8062-2ce350159bee",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:54:56.595Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "55f81313-125c-4804-8255-40b044b31e1e": {
-    "id": "55f81313-125c-4804-8255-40b044b31e1e",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:55:44.232Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "44235ba2-7006-4bf0-8f58-9b50865a8d04": {
-    "id": "44235ba2-7006-4bf0-8f58-9b50865a8d04",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:56:04.265Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "1cc59b39-aa5c-4e56-a15a-af643d474552": {
-    "id": "1cc59b39-aa5c-4e56-a15a-af643d474552",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:56:55.034Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "d4185fcc-15f2-4d46-bd01-8d0f273f3553": {
-    "id": "d4185fcc-15f2-4d46-bd01-8d0f273f3553",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:57:14.380Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "9f7146d2-7ca5-433e-b320-e69e19bcb8d1": {
-    "id": "9f7146d2-7ca5-433e-b320-e69e19bcb8d1",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:58:18.971Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "bfee2f92-9ce3-4fb1-b317-9dc2013ea9c4": {
-    "id": "bfee2f92-9ce3-4fb1-b317-9dc2013ea9c4",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:58:57.503Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
-  },
-  "7360dfa5-5dee-42f6-85f0-463029c5e400": {
-    "id": "7360dfa5-5dee-42f6-85f0-463029c5e400",
-    "name": "Demo Corp",
-    "slug": "demo-corp",
-    "createdAt": "2025-09-03T01:59:29.425Z",
-    "settings": {
-      "requireApproval": true,
-      "approvalChannels": [],
-      "defaultTokenExpiry": 3600,
-      "maxAgentsPerProject": 100
-    }
+      "maxAgentsPerProject": 10
+    },
+    "createdAt": "2025-09-08T02:11:39.665Z",
+    "updatedAt": "2025-09-08T02:11:39.666Z"
   }
 }

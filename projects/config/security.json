@@ -1,0 +1,30 @@
+{
+  "tls": {
+    "enabled": false,
+    "minVersion": "TLSv1.2",
+    "maxVersion": "TLSv1.3"
+  },
+  "mtls": {
+    "enabled": false,
+    "verifyClient": true
+  },
+  "cors": {
+    "enabled": true,
+    "origins": [
+      "http://localhost:3000",
+      "http://localhost:8080"
+    ],
+    "credentials": true
+  },
+  "csrf": {
+    "enabled": true,
+    "tokenLength": 32
+  },
+  "session": {
+    "enabled": true,
+    "maxAge": 86400000,
+    "secure": false,
+    "httpOnly": true,
+    "sameSite": "strict"
+  }
+}

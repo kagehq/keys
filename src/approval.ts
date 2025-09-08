@@ -50,13 +50,6 @@ export class ApprovalManager {
     }
   }
 
-  private saveApprovalRequests(): void {
-    const filePath = this.getApprovalRequestsPath();
-    const data = Object.fromEntries(this.approvalRequests);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  }
-
-
 
   /**
    * Create a new approval request for a high-risk scope
@@ -67,10 +60,11 @@ export class ApprovalManager {
     agentId: string,
     scope: string,
     expiresIn: number,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
+    id?: string
   ): Promise<ApprovalRequest> {
     const request: ApprovalRequest = {
-      id: uuidv4(),
+      id: id || uuidv4(),
       orgId,
       projectId,
       agentId,
@@ -129,7 +123,7 @@ export class ApprovalManager {
   /**
    * Approve a request
    */
-  async approveRequest(requestId: string, approverId: string, reason?: string): Promise<void> {
+  async approveRequest(requestId: string, approverId: string, reason?: string): Promise<ApprovalRequest> {
     const request = this.approvalRequests.get(requestId);
     if (!request) {
       throw new Error('Approval request not found');
@@ -147,18 +141,23 @@ export class ApprovalManager {
     };
 
     request.approvers.push(decision);
+    
+    // Check if this was the final approval needed
+    // For now, assume single approval is sufficient
+    // In a real implementation, you'd check against required approvers
     request.status = 'approved';
     
     this.approvalRequests.set(requestId, request);
     this.saveApprovalRequests();
 
     console.log(`✅ Request ${requestId} approved by ${approverId}`);
+    return request;
   }
 
   /**
    * Deny a request
    */
-  async denyRequest(requestId: string, approverId: string, reason?: string): Promise<void> {
+  async denyRequest(requestId: string, approverId: string, reason?: string): Promise<ApprovalRequest> {
     const request = this.approvalRequests.get(requestId);
     if (!request) {
       throw new Error('Approval request not found');
@@ -182,6 +181,7 @@ export class ApprovalManager {
     this.saveApprovalRequests();
 
     console.log(`❌ Request ${requestId} denied by ${approverId}: ${reason}`);
+    return request;
   }
 
   /**
@@ -244,5 +244,89 @@ export class ApprovalManager {
       denied: requests.filter(r => r.status === 'denied').length,
       expired: requests.filter(r => r.status === 'expired').length
     };
+  }
+
+  // Additional methods for compatibility with tests
+  async createRequest(request: ApprovalRequest): Promise<ApprovalRequest> {
+    return this.createApprovalRequest(
+      request.orgId,
+      request.projectId,
+      request.agentId,
+      request.scope,
+      request.expiresIn,
+      request.metadata,
+      request.id
+    );
+  }
+
+  async getRequest(requestId: string): Promise<ApprovalRequest | null> {
+    return this.getApprovalRequest(requestId);
+  }
+
+  async getRequests(options: {
+    organizationId?: string;
+    projectId?: string;
+    agentId?: string;
+    status?: string;
+    limit?: number;
+  } = {}): Promise<ApprovalRequest[]> {
+    let requests = Array.from(this.approvalRequests.values());
+
+    if (options.organizationId) {
+      requests = requests.filter(r => r.orgId === options.organizationId);
+    }
+
+    if (options.projectId) {
+      requests = requests.filter(r => r.projectId === options.projectId);
+    }
+
+    if (options.agentId) {
+      requests = requests.filter(r => r.agentId === options.agentId);
+    }
+
+    if (options.status) {
+      requests = requests.filter(r => r.status === options.status);
+    }
+
+    if (options.limit) {
+      requests = requests.slice(0, options.limit);
+    }
+
+    return requests.sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+  }
+
+  async getPendingRequests(options: {
+    organizationId?: string;
+    projectId?: string;
+    agentId?: string;
+  } = {}): Promise<ApprovalRequest[]> {
+    return this.getRequests({ ...options, status: 'pending' });
+  }
+
+  async expireRequests(): Promise<number> {
+    const now = new Date();
+    let expiredCount = 0;
+
+    for (const [, request] of this.approvalRequests) {
+      const expiresAt = new Date(request.requestedAt);
+      expiresAt.setSeconds(expiresAt.getSeconds() + request.expiresIn);
+      
+      if (request.status === 'pending' && expiresAt < now) {
+        request.status = 'expired';
+        expiredCount++;
+      }
+    }
+
+    if (expiredCount > 0) {
+      this.saveApprovalRequests();
+    }
+
+    return expiredCount;
+  }
+
+  private saveApprovalRequests(): void {
+    const filePath = this.getApprovalRequestsPath();
+    const data = Object.fromEntries(this.approvalRequests);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
   }
 }
