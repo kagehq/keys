@@ -1,6 +1,6 @@
 {
   "name": "@kagehq/keys",
-  "version": "0.1.1",
+  "version": "4.1.0",
   "description": "Scoped, expiring keys for AI agents in 5 minutes.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
