@@ -91,3 +91,10 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local demo/test data
+approval-data/
+tenancy-data/
+audit.db
+dashboard-audit.db
+demo-audit.db
